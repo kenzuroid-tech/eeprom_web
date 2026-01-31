@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mekanik - EEPROM POLINEMA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="icon" href="images/eeprom_logo.png" type="image/png">
+    <link rel="stylesheet" href="/css/divisi/mekanik.css">
+</head>
+
+<body>
+
+    <!-- Hero Section -->
+    <section class="hero-mechanical">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <div class="fade-in delay-1">
+                        <span class="badge-core">
+                            <i class="bi bi-gear-fill"></i> CORE DIVISION
+                        </span>
+                    </div>
+                    <h1 class="hero-title fade-in delay-2">
+                        MECHANICAL
+                    </h1>
+                    <p class="hero-subtitle fade-in delay-3">
+                        Membangun fondasi fisik robot dengan presisi engineering tingkat tinggi. Menciptakan struktur
+                        yang tangguh untuk performa kompetisi yang tak terkalahkan.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Bento Grid Section -->
+    <section class="bento-section">
+        <div class="container">
+            <!-- Row 1 -->
+            <div class="bento-grid">
+                <div class="bento-card bento-large bento-featured fade-in delay-1">
+                    <div class="icon-wrapper">
+                        <i class="bi bi-cpu-fill"></i>
+                    </div>
+                    <div class="card-label">Main Focus</div>
+                    <h2 class="card-title">Merancang & Merakit Struktur Robot</h2>
+                    <p class="card-description">
+                        Membuat desain mekanik yang kokoh dan ergonomis dengan mempertimbangkan setiap detail
+                        fungsional.
+                        Dari rangka kuat untuk robot sumo hingga chassis ringan untuk line follower - setiap komponen
+                        dirancang untuk maksimal performa.
+                    </p>
+                    <div class="mt-4">
+                        <i class="bi bi-tools"
+                            style="font-size: 4rem; opacity: 0.2; position: absolute; bottom: 20px; right: 20px;"></i>
+                    </div>
+                </div>
+
+                <div class="bento-card bento-medium bento-image fade-in delay-2">
+                    <div class="image-content">
+                        <h4 class="card-title mb-1">Hardware Lab</h4>
+                        <p class="mb-0" style="opacity: 0.7; font-size: 0.9rem;">Workshop EEPROM Polinema</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Row 2 -->
+            <div class="bento-grid">
+                <div class="bento-card bento-small bento-tech fade-in delay-3">
+                    <div class="icon-wrapper">
+                        <i class="bi bi-gear-wide-connected"></i>
+                    </div>
+                    <div class="card-label">Mobility System</div>
+                    <h3 class="card-title">Sistem Penggerak</h3>
+                    <p class="card-description">
+                        Mengembangkan sistem roda dan motor yang efisien dengan keseimbangan sempurna antara stabilitas
+                        dan kecepatan maksimal.
+                    </p>
+                </div>
+
+                <div class="bento-card bento-small fade-in delay-4">
+                    <div class="icon-wrapper">
+                        <i class="bi bi-shield-check"></i>
+                    </div>
+                    <div class="card-label">Reliability</div>
+                    <h3 class="card-title">Maintenance</h3>
+                    <p class="card-description">
+                        Perawatan rutin dan quality control untuk menjaga performa optimal setiap komponen mekanik
+                        robot.
+                    </p>
+                </div>
+
+                <div class="bento-card bento-small bento-premium fade-in delay-5">
+                    <div class="icon-wrapper">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                    </div>
+                    <div class="card-label">Testing</div>
+                    <h3 class="card-title">Uji Daya Tahan</h3>
+                    <p class="card-description">
+                        Memastikan robot dapat bertahan dalam kondisi lapangan ekstrem saat kompetisi berlangsung.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Row 3 - CTA -->
+            <div class="bento-grid">
+                <div class="bento-card bento-full fade-in delay-6"
+                    style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 30px;">
+                    <div style="max-width: 600px;">
+                        <div class="icon-wrapper">
+                            <i class="bi bi-lightbulb-fill"></i>
+                        </div>
+                        <h3 class="card-title" style="font-size: 2rem;">Inovasi Desain Mekanik</h3>
+                        <p class="card-description" style="font-size: 1.05rem;">
+                            Mengeksplorasi desain mekanik baru yang lebih efektif dan efisien untuk meningkatkan daya
+                            saing
+                            robot dalam kompetisi nasional maupun internasional.
+                        </p>
+                    </div>
+                    <div>
+                        <a href="contact.html" class="btn-cyber">
+                            Gabung Divisi Ini
+                            <i class="bi bi-arrow-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Memuat Navbar & Footer
+        fetch('includes/navbar.html').then(res => res.text()).then(data => {
+            document.getElementById('navbar-placeholder').innerHTML = data;
+            const path = window.location.pathname.split("/").pop() || "index.html";
+            const links = document.querySelectorAll('.nav-link-eeprom');
+            links.forEach(l => { if (l.getAttribute('href') === path) l.classList.add('active'); });
+        });
+
+        fetch('includes/footer.html').then(res => res.text()).then(data => {
+            document.getElementById('footer-placeholder').innerHTML = data;
+        });
+
+        // Intersection Observer for scroll animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+    </script>
+</body>
+
+</html>

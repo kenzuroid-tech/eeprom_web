@@ -179,15 +179,31 @@ document.addEventListener('DOMContentLoaded', function () {
     renderContent();
 });
 
+function handleNavbarActive() {
+    const path = window.location.pathname;
+    const page = path.split("/").pop() || "members.html";
+
+    const links = document.querySelectorAll('.nav-link-eeprom');
+
+    links.forEach(link => {
+        if (link.getAttribute('href') === page) {
+            link.classList.add('active');
+        } else {
+            link.classList.remove('active');
+        }
+    });
+}
+
 fetch('includes/navbar.html')
     .then(response => {
-        if (!response.ok) throw new Error('Gagal memuat navbar');
+        if (!response.ok) throw new Error('Navbar tidak ditemukan');
         return response.text();
     })
     .then(data => {
         document.getElementById('navbar-placeholder').innerHTML = data;
+        handleNavbarActive();
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => console.error('Error Navbar:', error));
 
 fetch('includes/footer.html')
     .then(response => {

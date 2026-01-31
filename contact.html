@@ -38,7 +38,7 @@
                 <div class="info-card text-center h-100">
                     <div class="info-icon-wrapper"><i class="bi bi-geo-alt"></i></div>
                     <h4 class="fw-bold text-dark">Sekretariat</h4>
-                    <p class="text-muted small">Jl. Soekarno Hatta No.9, Malang.</p>
+                    <p class="text-muted small">Gedung AL Politeknik Negeri Malang <br>Jl. Soekarno Hatta No.9, Malang.</p>
                 </div>
             </div>
             <div class="col-md-4">
@@ -121,58 +121,36 @@
                 <p class="text-muted">Hubungi tim kami secara langsung melalui WhatsApp</p>
             </div>
             <div class="row g-4 justify-content-center">
-                <!-- Contact Person Card Example 1 -->
+
                 <div class="col-md-4">
                     <div class="cp-card h-100 shadow-sm border-0">
                         <div class="cp-img-wrapper">
-                            <img src="https://ui-avatars.com/api/?name=John+Doe&background=1A237E&color=fff"
-                                alt="John Doe">
+                            <img src="images/memeng.jpg" alt="Siti Nikmatus Sholihah">
                         </div>
-                        <h5 class="fw-bold mb-1">John Doe</h5>
+                        <h5 class="fw-bold mb-1">Siti Nikmatus Sholihah</h5>
                         <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1 mb-3 small fw-bold">
-                            Ketua
+                            Humas
                         </span>
                         <p class="small text-muted mb-4"><i
-                                class="bi bi-envelope-fill me-2 text-primary"></i>john.doe@example.com</p>
+                                class="bi bi-envelope-fill me-2 text-primary"></i>sitinikmatussholihahdivti@gmail.com
+                        </p>
                         <a href="https://wa.me/6282331773806" target="_blank" class="btn-whatsapp">
                             <i class="fab fa-whatsapp me-2"></i>Hubungi WhatsApp
                         </a>
                     </div>
                 </div>
-
-                <!-- Contact Person Card Example 2 -->
                 <div class="col-md-4">
                     <div class="cp-card h-100 shadow-sm border-0">
                         <div class="cp-img-wrapper">
-                            <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=1A237E&color=fff"
-                                alt="Jane Smith">
+                            <img src="images/memeng.jpg" alt="Haydar Rafi Anis">
                         </div>
-                        <h5 class="fw-bold mb-1">Jane Smith</h5>
+                        <h5 class="fw-bold mb-1">Haydar Rafi Anis</h5>
                         <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1 mb-3 small fw-bold">
-                            Sekretaris
+                            Humas
                         </span>
                         <p class="small text-muted mb-4"><i
-                                class="bi bi-envelope-fill me-2 text-primary"></i>jane.smith@example.com</p>
-                        <a href="https://wa.me/6282331773806" target="_blank" class="btn-whatsapp">
-                            <i class="fab fa-whatsapp me-2"></i>Hubungi WhatsApp
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Contact Person Card Example 3 -->
-                <div class="col-md-4">
-                    <div class="cp-card h-100 shadow-sm border-0">
-                        <div class="cp-img-wrapper">
-                            <img src="https://ui-avatars.com/api/?name=Mike+Johnson&background=1A237E&color=fff"
-                                alt="Mike Johnson">
-                        </div>
-                        <h5 class="fw-bold mb-1">Mike Johnson</h5>
-                        <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1 mb-3 small fw-bold">
-                            Bendahara
-                        </span>
-                        <p class="small text-muted mb-4"><i
-                                class="bi bi-envelope-fill me-2 text-primary"></i>mike.johnson@example.com</p>
-                        <a href="https://wa.me/6282331773806" target="_blank" class="btn-whatsapp">
+                                class="bi bi-envelope-fill me-2 text-primary"></i>haydarrafianis@gmail.com</p>
+                        <a href="https://wa.me/62895376780905" target="_blank" class="btn-whatsapp">
                             <i class="fab fa-whatsapp me-2"></i>Hubungi WhatsApp
                         </a>
                     </div>
@@ -217,15 +195,31 @@
             window.open(url, '_blank');
         }
 
+        function handleNavbarActive() {
+            const path = window.location.pathname;
+            const page = path.split("/").pop() || "contact.html";
+
+            const links = document.querySelectorAll('.nav-link-eeprom');
+
+            links.forEach(link => {
+                if (link.getAttribute('href') === page) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
         fetch('includes/navbar.html')
             .then(response => {
-                if (!response.ok) throw new Error('Gagal memuat navbar');
+                if (!response.ok) throw new Error('Navbar tidak ditemukan');
                 return response.text();
             })
             .then(data => {
                 document.getElementById('navbar-placeholder').innerHTML = data;
+                handleNavbarActive();
             })
-            .catch(error => console.error('Error:', error));
+            .catch(error => console.error('Error Navbar:', error));
 
         fetch('includes/footer.html')
             .then(response => {
