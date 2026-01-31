@@ -3,12 +3,12 @@ function getJabatanPriority(jabatan) {
 
     if (jabatanLower === 'ketua umum') return 1;
 
-    const bph = ['sekretaris umum', 'sekretaris 1', 'bendahara umum', 'bendahara'];
+    const bph = ['sekretaris umum', 'sekretaris 1', 'bendahara umum'];
     if (bph.includes(jabatanLower)) return 2;
 
-    if (jabatanLower.includes('kepala divisi') || jabatanLower.includes('ketua divisi')) return 3;
+    if (jabatanLower.includes('kadiv') || jabatanLower.includes('ketua divisi')) return 3;
 
-    if (jabatanLower.includes('wakil kepala divisi')) return 4;
+    if (jabatanLower.includes('wakadiv')) return 4;
 
     return 5;
 }
