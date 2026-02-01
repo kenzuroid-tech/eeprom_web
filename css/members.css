@@ -56,6 +56,9 @@ body {
     padding: 10px;
     overflow: visible !important;
     display: flex;
+    flex-wrap: nowrap !important;
+    /* Mencegah tab turun ke bawah */
+    margin-top: 0 !important;
 }
 
 /* Menghilangkan scrollbar pada tab mobile */
@@ -89,6 +92,24 @@ body {
     transform: translateY(-5px);
 }
 
+.nav-scroll-wrapper {
+    margin-top: -35px;
+    padding-bottom: 15px;
+    overflow-x: auto;
+    /* Memungkinkan geser kiri-kanan */
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    /* Scroll halus di iOS */
+    display: flex;
+    justify-content: center;
+    /* Center di desktop */
+}
+
+/* Hilangkan scrollbar tapi tetap bisa di-scroll */
+.nav-scroll-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
 /* ========================================
    Statistics Card
    ======================================== */
@@ -110,6 +131,14 @@ body {
 /* ========================================
    Member Card
    ======================================== */
+
+.member-grid {
+    display: grid;
+    /* Otomatis menyesuaikan jumlah kolom berdasarkan lebar layar */
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+}
+
 .member-card {
     background: white;
     border-radius: 24px;
@@ -247,8 +276,8 @@ body {
 /* Staff Grid Style */
 .staff-grid-wrapper {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 25px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
     width: 100%;
 }
 
@@ -261,6 +290,40 @@ body {
 @media (max-width: 576px) {
     .staff-grid-wrapper {
         grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .nav-scroll-wrapper {
+        justify-content: flex-start;
+        /* Aliansi kiri di HP agar user tahu bisa di-scroll */
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .page-header {
+        padding: 80px 0 100px;
+        border-radius: 0 0 30px 30px;
+    }
+
+    .section-heading-white {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 576px) {
+    .member-grid {
+        grid-template-columns: repeat(auto-fill, minmax(100%, 1fr));
+        padding: 0 10px;
+    }
+
+    .member-card {
+        padding: 20px 15px;
+    }
+
+    .member-img-wrapper {
+        width: 100px;
+        height: 100px;
     }
 }
 
