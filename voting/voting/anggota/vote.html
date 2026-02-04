@@ -495,8 +495,17 @@
         });
 
         async function fetchActiveElection() {
-            const { data: election } = await supabaseClient.from('elections').select('id').eq('is_active', true).single();
-            if (election) currentElectionId = election.id;
+            const { data: session, error } = await supabaseClient
+                .from('voting_sessions')
+                .select('id')
+                .eq('is_active', true)
+                .maybeSingle();
+
+            if (session) {
+                currentElectionId = session.id;
+            } else {
+                console.error("Tidak ada sesi voting yang aktif");
+            }
         }
 
         async function checkMemberVoteStatus() {
@@ -562,32 +571,59 @@
         }
 
         async function submitVote() {
+            if (!selectedCandidateId || !currentElectionId) {
+                alert("Gagal memproses: Sesi pemilihan tidak ditemukan.");
+                return;
+            }
+
             document.getElementById('loadingOverlay').style.display = 'flex';
             const anggotaId = localStorage.getItem('anggotaId');
 
             try {
-                // 1. Insert ke Votes
-                await supabaseClient.from('votes').insert([{
-                    election_id: currentElectionId,
-                    candidate_id: selectedCandidateId,
-                    voter_id: anggotaId,
-                    voter_type: 'anggota'
-                }]);
+                // 1. Insert ke Tabel votes (Sesuaikan kolom dari gambar)
+                const { error: voteErr } = await supabaseClient
+                    .from('votes')
+                    .insert([{
+                        election_id: currentElectionId,
+                        candidate_id: selectedCandidateId,
+                        voter_id: anggotaId,
+                        voter_role: 'anggota' // Sesuaikan: voter_role (bukan voter_type)
+                    }]);
 
-                // 2. Update status anggota
-                await supabaseClient.from('anggota').update({ has_voted: true }).eq('id', anggotaId);
+                if (voteErr) throw voteErr;
 
-                // 3. Update total suara kandidat
-                const { data: cand } = await supabaseClient.from('candidates').select('total_votes').eq('id', selectedCandidateId).single();
-                await supabaseClient.from('candidates').update({ total_votes: (cand.total_votes || 0) + 1 }).eq('id', selectedCandidateId);
+                // 2. Update status anggota di tabel anggota
+                const { error: memberErr } = await supabaseClient
+                    .from('anggota')
+                    .update({ has_voted: true })
+                    .eq('id', anggotaId);
 
+                if (memberErr) throw memberErr;
+
+                // 3. Update total suara kandidat (Atomic increment)
+                const { data: cand } = await supabaseClient
+                    .from('candidates')
+                    .select('total_votes')
+                    .eq('id', selectedCandidateId)
+                    .single();
+
+                await supabaseClient
+                    .from('candidates')
+                    .update({ total_votes: (cand?.total_votes || 0) + 1 })
+                    .eq('id', selectedCandidateId);
+
+                // Berhasil
+                alert('Voting Berhasil! Terima kasih atas partisipasi Anda.');
                 window.location.reload();
+
             } catch (error) {
-                alert('Terjadi kesalahan.');
+                console.error('Error detail:', error);
+                alert('Terjadi kesalahan saat mengirim suara: ' + error.message);
+            } finally {
                 document.getElementById('loadingOverlay').style.display = 'none';
             }
         }
-
+        
         function updateStatusUI(voted) {
             if (voted) {
                 const status = document.getElementById('votingStatus');
