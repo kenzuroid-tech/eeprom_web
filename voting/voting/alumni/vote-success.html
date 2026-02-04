@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Voting Berhasil - EEPROM POLINEMA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="icon" href="/images/eeprom_logo.png" type="image/png">
+    <style>
+        :root {
+            --primary-blue: #1A237E;
+            --secondary-blue: #3F51B5;
+            --success-green: #10b981;
+            --light-gray: #F8F9FA;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .success-container {
+            max-width: 600px;
+            width: 100%;
+        }
+
+        .success-card {
+            background: white;
+            border-radius: 20px;
+            padding: 3rem 2rem;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .success-icon {
+            width: 120px;
+            height: 120px;
+            background: linear-gradient(135deg, var(--success-green) 0%, #059669 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            animation: scaleIn 0.6s ease-out 0.2s both;
+        }
+
+        @keyframes scaleIn {
+            from {
+                transform: scale(0);
+            }
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .success-icon i {
+            font-size: 4rem;
+            color: white;
+        }
+
+        .success-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-blue);
+            margin-bottom: 1rem;
+        }
+
+        .success-message {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .vote-info {
+            background: #f8fafc;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid var(--success-green);
+        }
+
+        .vote-info-item {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .vote-info-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .vote-info-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .vote-info-value {
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            color: white;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 1rem;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(26, 35, 126, 0.3);
+            color: white;
+        }
+
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            background: var(--success-green);
+            position: absolute;
+            animation: confetti-fall 3s linear infinite;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .voter-info {
+            background: white;
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .voter-badge {
+            background: var(--light-gray);
+            color: var(--primary-blue);
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            margin: 0.25rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .voter-badge i {
+            margin-right: 0.5rem;
+        }
+
+        .thank-you-note {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .thank-you-note i {
+            font-size: 2rem;
+            color: #f59e0b;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 576px) {
+            .success-card {
+                padding: 2rem 1.5rem;
+            }
+
+            .success-title {
+                font-size: 1.5rem;
+            }
+
+            .success-message {
+                font-size: 1rem;
+            }
+
+            .success-icon {
+                width: 100px;
+                height: 100px;
+            }
+
+            .success-icon i {
+                font-size: 3rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="success-container">
+        <div class="success-card">
+            <!-- Success Icon -->
+            <div class="success-icon">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+
+            <!-- Title -->
+            <h1 class="success-title">Vote Berhasil Dikirim!</h1>
+
+            <!-- Message -->
+            <p class="success-message">
+                Terima kasih telah berpartisipasi dalam pemilihan ini. Suara Anda sangat berarti untuk masa depan EEPROM POLINEMA.
+            </p>
+
+            <!-- Vote Info -->
+            <div class="vote-info">
+                <div class="vote-info-item">
+                    <span class="vote-info-label">Kandidat Pilihan:</span>
+                </div>
+                <div class="vote-info-item">
+                    <span class="vote-info-value" id="candidateName">
+                        <i class="bi bi-person-fill me-2"></i>
+                        No. <span id="candidateNumber">-</span> - <span id="candidateNameText">-</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Voter Info -->
+            <div class="voter-info">
+                <h6 class="fw-bold mb-3 text-start">
+                    <i class="bi bi-person-badge me-2"></i>
+                    Informasi Voter
+                </h6>
+                <div class="d-flex flex-wrap justify-content-center">
+                    <span class="voter-badge">
+                        <i class="bi bi-person-fill"></i>
+                        <span id="voterName">-</span>
+                    </span>
+                    <span class="voter-badge">
+                        <i class="bi bi-mortarboard-fill"></i>
+                        Gen <span id="voterGen">-</span>
+                    </span>
+                    <span class="voter-badge">
+                        <i class="bi bi-diagram-3-fill"></i>
+                        <span id="voterDivisi">-</span>
+                    </span>
+                </div>
+            </div>
+
+            <!-- Thank You Note -->
+            <div class="thank-you-note">
+                <i class="bi bi-heart-fill d-block"></i>
+                <p class="mb-0 fw-semibold" style="color: #92400e;">
+                    "Partisipasi Anda adalah langkah penting dalam membangun EEPROM yang lebih baik. Bersama kita wujudkan visi dan misi organisasi!"
+                </p>
+            </div>
+
+            <!-- Important Note -->
+            <div class="alert alert-info mb-3">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <small><strong>Catatan:</strong> Anda sudah tidak dapat mengubah pilihan Anda.</small>
+            </div>
+
+            <!-- Back Button -->
+            <a href="../../auth/alumni/login-alumni.html" class="btn-primary-custom">
+                <i class="bi bi-house-fill me-2"></i>
+                Kembali ke Halaman Utama
+            </a>
+
+            <!-- Additional Info -->
+            <p class="mt-4 mb-0 text-muted small">
+                <i class="bi bi-shield-check me-1"></i>
+                Vote Anda telah tersimpan dengan aman
+            </p>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Check if user should be on this page
+        window.addEventListener('DOMContentLoaded', function() {
+            const voteSuccess = localStorage.getItem('voteSuccess');
+            
+            // If no vote success flag, redirect to login
+            if (voteSuccess !== 'true') {
+                window.location.href = '../../auth/alumni/login-alumni.html';
+                return;
+            }
+
+            // Display vote information
+            const candidateName = localStorage.getItem('votedCandidate') || '-';
+            const candidateNumber = localStorage.getItem('votedCandidateNumber') || '-';
+            
+            document.getElementById('candidateNumber').textContent = candidateNumber;
+            document.getElementById('candidateNameText').textContent = candidateName;
+
+            // Display voter information
+            document.getElementById('voterName').textContent = localStorage.getItem('namaLengkap') || '-';
+            document.getElementById('voterGen').textContent = localStorage.getItem('generasi') || '-';
+            document.getElementById('voterDivisi').textContent = localStorage.getItem('divisi') || '-';
+
+            // Create confetti effect
+            createConfetti();
+
+            // Clear vote success flag after displaying
+            // Keep other localStorage data for potential future use
+            localStorage.removeItem('voteSuccess');
+        });
+
+        // Create confetti animation
+        function createConfetti() {
+            const colors = ['#10b981', '#3F51B5', '#FF5722', '#FFD700', '#FF69B4'];
+            const confettiCount = 50;
+
+            for (let i = 0; i < confettiCount; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'confetti';
+                    confetti.style.left = Math.random() * 100 + '%';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                    confetti.style.animationDelay = Math.random() * 3 + 's';
+                    confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    document.body.appendChild(confetti);
+
+                    // Remove confetti after animation
+                    setTimeout(() => {
+                        confetti.remove();
+                    }, 5000);
+                }, i * 30);
+            }
+        }
+
+        // Prevent back button
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            history.go(1);
+        };
+    </script>
+</body>
+
+</html>

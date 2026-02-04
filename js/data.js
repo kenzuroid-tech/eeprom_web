@@ -1591,8 +1591,8 @@ const membersData = [
 
     // Generasi 15
     {
-        nim: '',
-        nama_lengkap: 'M. Ryan Dzikru A',
+        nim: '2331110114',
+        nama_lengkap: 'Muhammad Ryan Dzikru Arham',
         jabatan: 'Ketua Umum',
         divisi: '',
         status_keanggotaan: 'Active',
@@ -1600,8 +1600,8 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
-        nama_lengkap: 'Davala Ilham M.R',
+        nim: '2341170003',
+        nama_lengkap: 'Davala Ilham Madani Rochman',
         jabatan: 'Sekretaris Umum',
         divisi: '',
         status_keanggotaan: 'Active',
@@ -1609,7 +1609,7 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
+        nim: '2341170040',
         nama_lengkap: 'Hannunah Qiblatin',
         jabatan: 'Sekretaris 1',
         divisi: '',
@@ -1618,7 +1618,7 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
+        nim: '2341170108',
         nama_lengkap: 'Zahrina Rana Nadhila',
         jabatan: 'Bendahara Umum',
         divisi: '',
@@ -1627,7 +1627,7 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
+        nim: '2331110059',
         nama_lengkap: 'Cahya Purna Yudha',
         jabatan: 'Ketua Divisi Mekanik',
         divisi: 'Mekanik',
@@ -1636,8 +1636,8 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
-        nama_lengkap: 'Mozadib Akmal F',
+        nim: '2331110103',
+        nama_lengkap: 'Mozadib Akmal Firdaus',
         jabatan: 'Wakadiv Mekanik Internal',
         divisi: 'Mekanik',
         status_keanggotaan: 'Active',
@@ -1645,7 +1645,7 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
+        nim: '2341170077',
         nama_lengkap: 'Ilfi Nurdiana',
         jabatan: 'Wakadiv Mekanik RnD',
         divisi: 'Mekanik',
@@ -1654,8 +1654,8 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
-        nama_lengkap: 'M. Alif Nugroho',
+        nim: '2341170024',
+        nama_lengkap: 'Muhammad Alif Nugroho',
         jabatan: 'Ketua Divisi Elektrik',
         divisi: 'Elektrik',
         status_keanggotaan: 'Active',
@@ -1663,8 +1663,8 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
-        nama_lengkap: 'M. Firdaus Alim',
+        nim: '2331110093',
+        nama_lengkap: 'Muhammad Firdaus Alim',
         jabatan: 'Wakadiv Elektrik Internal',
         divisi: 'Elektrik',
         status_keanggotaan: 'Active',
@@ -1672,7 +1672,7 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
+        nim: '2331110122',
         nama_lengkap: 'Ferry Dicky Hermawan',
         jabatan: 'Wakadiv Elektrik RnD',
         divisi: 'Elektrik',
@@ -1681,7 +1681,7 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
+        nim: '2341170154',
         nama_lengkap: 'Moh. Rif’at Nur Fahri',
         jabatan: 'Ketua Divisi Software',
         divisi: 'Software',
@@ -1690,7 +1690,7 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
+        nim: '2341170111',
         nama_lengkap: 'Daffa Authany Putra',
         jabatan: 'Wakadiv Software Internal',
         divisi: 'Software',
@@ -1699,8 +1699,8 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
-        nama_lengkap: 'Dhinda Kusherawati A.',
+        nim: '2331130068',
+        nama_lengkap: 'Dhinda Kusherawati Ardianto',
         jabatan: 'Wakadiv Software RnD',
         divisi: 'Software',
         status_keanggotaan: 'Active',
@@ -1708,7 +1708,7 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
+        nim: '2341170013',
         nama_lengkap: 'Putri Wahyu Ilahi',
         jabatan: 'Ketua Divisi Humas',
         divisi: 'Humas',
@@ -1717,10 +1717,10 @@ const membersData = [
         foto_url: 'images/profile.jpg'
     },
     {
-        nim: '',
+        nim: '2331110124',
         nama_lengkap: 'Nasrulloh Ivan Pramudia',
         jabatan: 'Wakadiv Humas',
-        divisi: 'Software',
+        divisi: 'Humas',
         status_keanggotaan: 'Active',
         generasi: 15,
         foto_url: 'images/profile.jpg'

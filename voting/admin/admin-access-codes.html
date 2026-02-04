@@ -570,7 +570,7 @@
                 } else if (userType === 'alumni') {
                     const { data: alumni, error } = await supabaseClient
                         .from('alumni')
-                        .select('nama_lengkap, generasi, tahun_lulus, divisi, jabatan, user_id');
+                        .select('nama_lengkap, generasi, divisi, jabatan, user_id');
 
                     if (error) throw error;
 
@@ -583,7 +583,7 @@
                         election_id: selectedElectionId,
                         code: `ALUMNI-${a.generasi}-${generateShortCode()}`,
                         voter_name: a.nama_lengkap,
-                        voter_identifier: `Gen ${a.generasi} (${a.tahun_lulus || 'N/A'})`,
+                        voter_identifier: `Gen ${a.generasi} (${a.angkatan || 'N/A'})`,
                         user_type: 'alumni',
                         role_type: 'alumni',
                         voter_metadata: JSON.stringify({ 

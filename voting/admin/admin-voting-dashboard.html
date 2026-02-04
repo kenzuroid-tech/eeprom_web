@@ -183,6 +183,52 @@
             transform: translateY(-2px);
         }
 
+        /* Action Buttons */
+        .btn-action-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn-action {
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .btn-edit {
+            background-color: #2196F3;
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background-color: #1976D2;
+            transform: translateY(-2px);
+        }
+
+        .btn-reset {
+            background-color: #FF9800;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background-color: #F57C00;
+            transform: translateY(-2px);
+        }
+
+        .btn-delete {
+            background-color: #F44336;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #D32F2F;
+            transform: translateY(-2px);
+        }
+
         /* Loading Spinner */
         .spinner-overlay {
             position: fixed;
@@ -197,6 +243,23 @@
             z-index: 9999;
         }
 
+        /* Modal Styling */
+        .modal-content {
+            border-radius: 20px;
+            border: none;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-blue));
+            color: white;
+            border-radius: 20px 20px 0 0;
+            padding: 20px 30px;
+        }
+
+        .modal-body {
+            padding: 30px;
+        }
+
         @media (max-width: 992px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -206,6 +269,14 @@
             .main-content {
                 margin-left: 0;
                 padding: 20px;
+            }
+
+            .btn-action-group {
+                flex-direction: column;
+            }
+
+            .btn-action {
+                width: 100%;
             }
         }
     </style>
@@ -268,7 +339,7 @@
         <!-- Active Election Banner -->
         <div class="active-voting-banner mb-4" id="electionInfo" style="display:none;">
             <div class="row align-items-center mb-4">
-                <div class="col-lg-8">
+                <div class="col-lg-7">
                     <div class="d-flex align-items-center gap-3 mb-2">
                         <span class="badge rounded-pill px-3 py-2" style="background-color: var(--accent-orange);">
                             <i class="bi bi-broadcast me-1"></i>Voting Aktif
@@ -279,10 +350,18 @@
                         <i class="bi bi-calendar3 me-2"></i>Loading...
                     </p>
                 </div>
-                <div class="col-lg-4 text-lg-end">
-                    <button class="btn btn-outline-danger btn-sm" onclick="resetVotes()">
-                        <i class="bi bi-trash3 me-1"></i>Reset Data Suara
-                    </button>
+                <div class="col-lg-5">
+                    <div class="btn-action-group justify-content-lg-end mt-3 mt-lg-0">
+                        <button class="btn btn-action btn-edit" onclick="editElection()">
+                            <i class="bi bi-pencil-square me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-action btn-reset" onclick="resetVotes()">
+                            <i class="bi bi-arrow-clockwise me-1"></i>Reset Suara
+                        </button>
+                        <button class="btn btn-action btn-delete" onclick="deleteElection()">
+                            <i class="bi bi-trash3 me-1"></i>Hapus
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -340,6 +419,48 @@
         </div>
     </div>
 
+    <!-- Edit Election Modal -->
+    <div class="modal fade" id="editElectionModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-pencil-square me-2"></i>Edit Pemilihan
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editElectionForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Judul Pemilihan</label>
+                            <input type="text" class="form-control" id="editTitle" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tanggal Mulai</label>
+                            <input type="datetime-local" class="form-control" id="editStartDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Tanggal Selesai</label>
+                            <input type="datetime-local" class="form-control" id="editEndDate" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Deskripsi</label>
+                            <textarea class="form-control" id="editDescription" rows="3"></textarea>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-circle me-2"></i>Simpan Perubahan
+                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                Batal
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -381,6 +502,7 @@
         // ============================================
         let activeElection = null;
         let totalMembers = 100; // Default, bisa diambil dari database
+        let editModal;
 
         // ============================================
         // HELPER FUNCTIONS
@@ -389,9 +511,23 @@
             document.getElementById('loadingSpinner').style.display = 'none';
         }
 
+        function showLoading() {
+            document.getElementById('loadingSpinner').style.display = 'flex';
+        }
+
         function formatDate(dateString) {
             const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
             return new Date(dateString).toLocaleDateString('id-ID', options);
+        }
+
+        function formatDateTimeLocal(dateString) {
+            const date = new Date(dateString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
         }
 
         async function adminLogout() {
@@ -570,6 +706,74 @@
         }
 
         // ============================================
+        // EDIT ELECTION FUNCTION
+        // ============================================
+        function editElection() {
+            if (!activeElection) {
+                alert('Tidak ada pemilihan aktif');
+                return;
+            }
+
+            // Populate form with current data
+            document.getElementById('editTitle').value = activeElection.title;
+            document.getElementById('editStartDate').value = formatDateTimeLocal(activeElection.start_date);
+            document.getElementById('editEndDate').value = formatDateTimeLocal(activeElection.end_date);
+            document.getElementById('editDescription').value = activeElection.description || '';
+
+            // Show modal
+            editModal = new bootstrap.Modal(document.getElementById('editElectionModal'));
+            editModal.show();
+        }
+
+        // Handle edit form submission
+        document.getElementById('editElectionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!activeElection) return;
+
+            const title = document.getElementById('editTitle').value.trim();
+            const startDate = document.getElementById('editStartDate').value;
+            const endDate = document.getElementById('editEndDate').value;
+            const description = document.getElementById('editDescription').value.trim();
+
+            if (!title || !startDate || !endDate) {
+                alert('Harap lengkapi semua field yang wajib diisi!');
+                return;
+            }
+
+            if (new Date(endDate) <= new Date(startDate)) {
+                alert('Tanggal selesai harus setelah tanggal mulai!');
+                return;
+            }
+
+            try {
+                showLoading();
+
+                const { error } = await supabaseClient
+                    .from('elections')
+                    .update({
+                        title: title,
+                        start_date: startDate,
+                        end_date: endDate,
+                        description: description,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', activeElection.id);
+
+                if (error) throw error;
+
+                alert('✅ Pemilihan berhasil diperbarui!');
+                editModal.hide();
+                await loadDashboard();
+
+            } catch (error) {
+                console.error('❌ Error updating election:', error);
+                alert('❌ Gagal memperbarui pemilihan: ' + error.message);
+                hideLoading();
+            }
+        });
+
+        // ============================================
         // RESET VOTES FUNCTION
         // ============================================
         async function resetVotes() {
@@ -578,10 +782,27 @@
                 return;
             }
 
-            const confirmed = confirm('⚠️ PERINGATAN: Semua suara akan dihapus secara permanen. Lanjutkan?');
+            const confirmed = confirm(
+                '⚠️ PERINGATAN!\n\n' +
+                'Semua suara yang telah masuk akan dihapus secara permanen.\n' +
+                'Tindakan ini TIDAK DAPAT dibatalkan!\n\n' +
+                'Apakah Anda yakin ingin melanjutkan?'
+            );
+
             if (!confirmed) return;
 
+            // Double confirmation
+            const doubleConfirm = confirm(
+                '🔴 KONFIRMASI TERAKHIR\n\n' +
+                'Anda akan menghapus ' + (document.getElementById('totalVotes').textContent || '0') + ' suara.\n' +
+                'Ketik OK untuk melanjutkan.'
+            );
+
+            if (!doubleConfirm) return;
+
             try {
+                showLoading();
+
                 const { error } = await supabaseClient
                     .from('votes')
                     .delete()
@@ -590,10 +811,82 @@
                 if (error) throw error;
 
                 alert('✅ Semua suara berhasil direset!');
-                loadDashboard();
+                await loadDashboard();
+
             } catch (error) {
                 console.error('❌ Error resetting votes:', error);
                 alert('❌ Gagal reset suara: ' + error.message);
+                hideLoading();
+            }
+        }
+
+        // ============================================
+        // DELETE ELECTION FUNCTION
+        // ============================================
+        async function deleteElection() {
+            if (!activeElection) {
+                alert('Tidak ada pemilihan aktif');
+                return;
+            }
+
+            const confirmed = confirm(
+                '🗑️ HAPUS PEMILIHAN\n\n' +
+                'Anda akan menghapus pemilihan: "' + activeElection.title + '"\n\n' +
+                'Data yang akan dihapus:\n' +
+                '• Semua suara yang masuk\n' +
+                '• Semua kandidat yang terdaftar\n' +
+                '• Data pemilihan\n\n' +
+                'Tindakan ini TIDAK DAPAT dibatalkan!\n\n' +
+                'Apakah Anda yakin?'
+            );
+
+            if (!confirmed) return;
+
+            // Double confirmation
+            const doubleConfirm = confirm(
+                '⚠️ KONFIRMASI TERAKHIR\n\n' +
+                'Ini adalah kesempatan terakhir untuk membatalkan.\n' +
+                'Pemilihan "' + activeElection.title + '" akan dihapus PERMANEN!\n\n' +
+                'Lanjutkan?'
+            );
+
+            if (!doubleConfirm) return;
+
+            try {
+                showLoading();
+
+                // 1. Delete all votes first
+                const { error: votesError } = await supabaseClient
+                    .from('votes')
+                    .delete()
+                    .eq('election_id', activeElection.id);
+
+                if (votesError) throw votesError;
+
+                // 2. Delete all candidates
+                const { error: candidatesError } = await supabaseClient
+                    .from('candidates')
+                    .delete()
+                    .eq('election_id', activeElection.id);
+
+                if (candidatesError) throw candidatesError;
+
+                // 3. Delete the election
+                const { error: electionError } = await supabaseClient
+                    .from('elections')
+                    .delete()
+                    .eq('id', activeElection.id);
+
+                if (electionError) throw electionError;
+
+                alert('✅ Pemilihan berhasil dihapus!\n\nAnda dapat membuat pemilihan baru sekarang.');
+                activeElection = null;
+                await loadDashboard();
+
+            } catch (error) {
+                console.error('❌ Error deleting election:', error);
+                alert('❌ Gagal menghapus pemilihan: ' + error.message);
+                hideLoading();
             }
         }
 
@@ -606,7 +899,11 @@
         });
 
         // Auto refresh every 30 seconds
-        setInterval(loadDashboard, 30000);
+        setInterval(() => {
+            if (activeElection) {
+                loadDashboard();
+            }
+        }, 30000);
     </script>
 </body>
 
