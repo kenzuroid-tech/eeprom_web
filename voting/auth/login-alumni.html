@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Alumni - EEPROM POLINEMA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="icon" href="/images/eeprom_logo.png" type="image/png">
+    <style>
+        :root {
+            --primary-blue: #1A237E;
+            --secondary-blue: #3F51B5;
+            --accent-orange: #FF5722;
+            --light-gray: #F8F9FA;
+            --medium-gray: #E8EAF6;
+            --dark-text: #212529;
+            --soft-text: #495057;
+            --shadow-custom: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--medium-gray);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-custom);
+            border: none;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--soft-text);
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+
+        .back-link:hover {
+            color: var(--primary-blue);
+        }
+
+        .logo-wrapper {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .logo-image {
+            width: 80px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--soft-text);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-blue);
+            box-shadow: 0 0 0 0.25rem rgba(63, 81, 181, 0.1);
+        }
+
+        .input-group-text {
+            background-color: var(--light-gray);
+        }
+
+        .btn-login {
+            background-color: var(--primary-blue);
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            color: white;
+        }
+
+        .btn-login:hover {
+            background-color: var(--secondary-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(26, 35, 126, 0.3);
+        }
+
+        .forgot-password {
+            color: var(--secondary-blue);
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.8rem;
+            color: #9e9e9e;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            border-left: 4px solid var(--secondary-blue);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <a href="select-role.html" class="back-link">
+            <i class="bi bi-arrow-left me-2"></i> Kembali ke Pilihan Role
+        </a>
+
+        <div class="login-card">
+            <div class="logo-wrapper">
+                <img src="/images/eeprom_logo.png" alt="EEPROM Logo" class="logo-image">
+                <h4 class="fw-bold mt-3" style="color: var(--dark-text);">Login Alumni</h4>
+                <p class="text-muted small">Selamat datang di e-Voting EEPROM Kakak Alumni</p>
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <strong>Login Alumni:</strong> Masukkan nama lengkap dan generasi sesuai data saat aktif di EEPROM
+            </div>
+
+            <form id="alumniLoginForm">
+                <div class="mb-3">
+                    <label for="identifier" class="form-label">Nama Lengkap</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-end-0 bg-white">
+                            <i class="bi bi-person text-muted"></i>
+                        </span>
+                        <input type="text" class="form-control border-start-0" id="identifier" name="identifier"
+                            placeholder="Masukkan Nama Lengkap" required autocomplete="name">
+                    </div>
+                    <small class="text-muted">Masukkan nama sesuai data saat aktif di EEPROM</small>
+                </div>
+
+                <div class="mb-3">
+                    <label for="generasi" class="form-label">Generasi</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-end-0 bg-white">
+                            <i class="bi bi-hash text-muted"></i>
+                        </span>
+                        <input type="number" class="form-control border-start-0" id="generasi" name="generasi"
+                            placeholder="contoh: 1, 2, 3" required min="1" max="99" autocomplete="off">
+                    </div>
+                    <small class="text-muted">Masukkan angka generasi (1, 2, 3, dst)</small>
+                </div>
+
+                <div class="d-flex justify-content-end mb-4">
+                    <a href="#" class="forgot-password" onclick="showHelp(); return false;">
+                        <i class="bi bi-question-circle me-1"></i> Bantuan Login?
+                    </a>
+                </div>
+
+                <button type="submit" class="btn btn-login w-100">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Masuk
+                </button>
+            </form>
+        </div>
+
+        <div class="footer-text">
+            © 2026 EEPROM POLINEMA - Developed by Nisho
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/config/supabase-config.js"></script>
+    <script src="/js/auth/auth-helper.js"></script>
+    <script src="/js/auth/login-alumni.js"></script>
+
+    <script>
+        function showHelp() {
+            alert('Bantuan Login Alumni:\n\n' +
+                '1. Masukkan nama lengkap sesuai data saat aktif di EEPROM\n' +
+                '2. Masukkan angka generasi (1, 2, 3, dst)\n' +
+                '3. Jika lupa data, hubungi admin EEPROM\n\n' +
+                'Contoh:\n' +
+                'Nama: Budi Santoso\n' +
+                'Generasi: 1');
+        }
+    </script>
+</body>
+
+</html>

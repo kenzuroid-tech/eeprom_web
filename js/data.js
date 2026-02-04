@@ -1734,7 +1734,7 @@ const membersData = [
         divisi: 'Software, Humas',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '244101070130',
@@ -1743,7 +1743,7 @@ const membersData = [
         divisi: 'Elektrik',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101030058',
@@ -1752,7 +1752,7 @@ const membersData = [
         divisi: 'Mekanik, Humas',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '244101050072',
@@ -1761,7 +1761,7 @@ const membersData = [
         divisi: 'Elektrik',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '244101070003',
@@ -1770,7 +1770,7 @@ const membersData = [
         divisi: 'elektrik',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243102010085',
@@ -1779,7 +1779,7 @@ const membersData = [
         divisi: 'Mekanik',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '244101050080',
@@ -1788,7 +1788,7 @@ const membersData = [
         divisi: 'Elektrik',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101010013',
@@ -1797,7 +1797,7 @@ const membersData = [
         divisi: 'Software/ Humas',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101010033',
@@ -1806,7 +1806,7 @@ const membersData = [
         divisi: 'Mekanik',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101030033',
@@ -1815,7 +1815,7 @@ const membersData = [
         divisi: 'Mekanik, Humas',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101010070',
@@ -1824,7 +1824,7 @@ const membersData = [
         divisi: 'Software, Humas',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101010076',
@@ -1833,7 +1833,7 @@ const membersData = [
         divisi: 'Elektrik',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '244101070085',
@@ -1842,7 +1842,7 @@ const membersData = [
         divisi: 'Software',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101010070',
@@ -1851,7 +1851,7 @@ const membersData = [
         divisi: 'Software',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101010055',
@@ -1860,7 +1860,7 @@ const membersData = [
         divisi: 'Software',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101030072',
@@ -1869,7 +1869,7 @@ const membersData = [
         divisi: 'Elektrik, Humas',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101030056',
@@ -1878,7 +1878,7 @@ const membersData = [
         divisi: 'Software, Humas',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101010007',
@@ -1887,7 +1887,7 @@ const membersData = [
         divisi: 'Elektrik',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101030072',
@@ -1896,7 +1896,7 @@ const membersData = [
         divisi: 'Software',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101030026',
@@ -1905,7 +1905,7 @@ const membersData = [
         divisi: 'Mekanik',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '244101070038',
@@ -1914,7 +1914,7 @@ const membersData = [
         divisi: 'Mekanik',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
     {
         nim: '243101020036',
@@ -1923,7 +1923,7 @@ const membersData = [
         divisi: 'Elektrik',
         status_keanggotaan: 'Active',
         generasi: 16,
-        foto_url: 'images/memeng.jpg'
+        foto_url: '/images/memeng.jpg'
     },
 
     // Anggota Generasi 13

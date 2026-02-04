@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buat Pemilihan - EEPROM Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="icon" href="/images/eeprom_logo.png" type="image/png">
+    <style>
+        :root {
+            --sidebar-blue: #1A237E;
+            --sidebar-width: 280px;
+            --bg-light: #f4f7fe;
+            --accent-orange: #FF5722;
+            --primary-blue: #1A237E;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+        }
+
+        /* SIDEBAR (Konsisten dengan Dashboard) */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
+            background-color: var(--sidebar-blue);
+            color: white;
+            padding: 20px 15px;
+            z-index: 1000;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            border-radius: 12px;
+            margin-bottom: 5px;
+            font-size: 0.9rem;
+            transition: 0.3s;
+        }
+
+        .nav-item i {
+            margin-right: 15px;
+            font-size: 1.1rem;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 4px solid var(--accent-orange);
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            padding: 40px;
+        }
+
+        .top-header {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* FORM STYLING */
+        .card-form {
+            background: white;
+            border-radius: 20px;
+            padding: 35px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            margin-bottom: 25px;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--sidebar-blue);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 12px;
+            padding: 12px 18px;
+            border: 1px solid #e2e8f0;
+            background-color: #f8fafc;
+        }
+
+        .form-control:focus {
+            box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.1);
+            border-color: var(--primary-blue);
+            background-color: white;
+        }
+
+        .btn-save {
+            background-color: var(--primary-blue);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 12px;
+            font-weight: 700;
+            transition: 0.3s;
+            border: none;
+        }
+
+        .btn-save:hover {
+            background-color: var(--accent-orange);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 87, 34, 0.3);
+        }
+
+        /* VOTER OPTIONS CUSTOM */
+        .voter-option-card {
+            border: 2px solid #f1f5f9;
+            border-radius: 15px;
+            padding: 15px;
+            transition: 0.3s;
+            cursor: pointer;
+            background: white;
+        }
+
+        .voter-option-card:hover {
+            border-color: var(--primary-blue);
+        }
+
+        .form-check-input:checked+.voter-option-card {
+            border-color: var(--accent-orange);
+            background-color: #fffaf0;
+        }
+
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <img src="/images/eeprom_logo.png" alt="EEPROM Logo" width="50">
+            <h5 class="mt-2">EEPROM ADMIN</h5>
+        </div>
+        <nav class="nav flex-column">
+            <a class="nav-link nav-item" href="admin-voting-dashboard.html">
+                <i class="bi bi-grid-1x2-fill"></i> Dashboard
+            </a>
+            <a class="nav-link nav-item active" href="admin-create-election.html">
+                <i class="bi bi-plus-circle-fill"></i> Buat Pemilihan
+            </a>
+            <a class="nav-link nav-item" href="admin-candidates.html">
+                <i class="bi bi-people-fill"></i> Kelola Kandidat
+            </a>
+            <a class="nav-link nav-item" href="admin-access-codes.html">
+                <i class="bi bi-shield-lock-fill"></i> Kode Akses
+            </a>
+            <a class="nav-link nav-item" href="admin-results.html">
+                <i class="bi bi-graph-up-arrow"></i> Hasil Voting
+            </a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <div class="top-header">
+            <div>
+                <h4 class="fw-bold m-0"><i class="bi bi-plus-circle me-2 text-primary"></i>Buat Pemilihan Baru</h4>
+                <p class="text-muted small m-0">Konfigurasi sesi e-voting untuk komunitas EEPROM</p>
+            </div>
+            <button class="btn btn-light border-0 shadow-sm rounded-pill px-4" onclick="history.back()">
+                <i class="bi bi-arrow-left me-2"></i>Kembali
+            </button>
+        </div>
+
+        <form id="createElectionForm">
+            <div class="card-form">
+                <h5 class="mb-4 fw-bold" style="color: var(--primary-blue);">
+                    <i class="bi bi-info-circle-fill me-2 text-warning"></i>Informasi Dasar
+                </h5>
+                <div class="row g-4">
+                    <div class="col-md-8">
+                        <label class="form-label">Nama Pemilihan <span class="text-danger">*</span></label>
+                        <input type="text" name="title" class="form-control"
+                            placeholder="Contoh: Pemilihan Ketua Umum 2025/2026" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Status Awal <span class="text-danger">*</span></label>
+                        <select name="status" class="form-select" required>
+                            <option value="Draft">Draft (Simpan Dulu)</option>
+                            <option value="Active">Active (Langsung Mulai)</option>
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Deskripsi Pemilihan</label>
+                        <textarea name="description" class="form-control" rows="3"
+                            placeholder="Jelaskan detail pemilihan ini..."></textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Waktu Mulai <span class="text-danger">*</span></label>
+                        <input type="datetime-local" name="start_date" class="form-control" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Waktu Selesai <span class="text-danger">*</span></label>
+                        <input type="datetime-local" name="end_date" class="form-control" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-form">
+                <h5 class="mb-4 fw-bold" style="color: var(--primary-blue);">
+                    <i class="bi bi-person-check-fill me-2 text-success"></i>Kriteria Pemilih
+                </h5>
+
+                <div class="form-check mb-4 p-0">
+                    <input class="form-check-input d-none" type="checkbox" name="allow_all_active" id="allActiveMembers"
+                        value="1" checked>
+                    <label class="voter-option-card d-block w-100" for="allActiveMembers">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-check-circle-fill text-success fs-3 me-3"></i>
+                            <div>
+                                <h6 class="m-0 fw-bold">Semua Anggota Aktif</h6>
+                                <small class="text-muted">Izinkan seluruh fungsionaris aktif memberikan suara</small>
+                            </div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="form-check p-0">
+                            <input class="form-check-input d-none" type="checkbox" name="allow_alumni" id="allowAlumni"
+                                value="1">
+                            <label class="voter-option-card d-block" for="allowAlumni">
+                                <i class="bi bi-mortarboard-fill text-danger me-2"></i> Sertakan Alumni
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check p-0">
+                            <input class="form-check-input d-none" type="checkbox" name="allow_delegasi"
+                                id="allowDelegasi" value="1">
+                            <label class="voter-option-card d-block" for="allowDelegasi">
+                                <i class="bi bi-person-workspace text-primary me-2"></i> Sertakan Delegasi
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-light p-4 rounded-4">
+                    <label class="form-label mb-3">Atau Pilih Generasi Spesifik:</label>
+                    <div class="row g-3" id="generasiFilterGroup">
+                        <div class="col-6 col-md-3">
+                            <div class="form-check border bg-white p-2 rounded-3 text-center">
+                                <input class="form-check-input ms-0 generasi-checkbox" type="checkbox"
+                                    name="generations[]" value="17" id="gen17">
+                                <label class="form-check-label ms-1" for="gen17">Gen 17</label>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="form-check border bg-white p-2 rounded-3 text-center">
+                                <input class="form-check-input ms-0 generasi-checkbox" type="checkbox"
+                                    name="generations[]" value="16" id="gen16">
+                                <label class="form-check-label ms-1" for="gen16">Gen 16</label>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="form-check border bg-white p-2 rounded-3 text-center">
+                                <input class="form-check-input ms-0 generasi-checkbox" type="checkbox"
+                                    name="generations[]" value="15" id="gen15">
+                                <label class="form-check-label ms-1" for="gen15">Gen 15</label>
+                            </div>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <div class="form-check border bg-white p-2 rounded-3 text-center">
+                                <input class="form-check-input ms-0 generasi-checkbox" type="checkbox"
+                                    name="generations[]" value="14" id="gen14">
+                                <label class="form-check-label ms-1" for="gen14">Gen 14</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-form">
+                <h5 class="mb-4 fw-bold" style="color: var(--primary-blue);">
+                    <i class="bi bi-eye-fill me-2 text-info"></i>Privasi & Hasil
+                </h5>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-check form-switch p-3 border rounded-4 bg-light">
+                            <input class="form-check-input ms-0 me-3" type="checkbox" name="show_realtime_admin"
+                                value="1" id="showRealtime" checked>
+                            <label class="form-check-label fw-bold" for="showRealtime">Real-time hasil di Admin</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check form-switch p-3 border rounded-4 bg-light">
+                            <input class="form-check-input ms-0 me-3" type="checkbox" name="show_result_voter" value="1"
+                                id="showAfterVote">
+                            <label class="form-check-label fw-bold" for="showAfterVote">Hasil ke pemilih selesai
+                                voting</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-end gap-3 mb-5">
+                <button type="button" class="btn btn-light border-0 px-5 rounded-pill fw-bold"
+                    onclick="history.back()">Batal</button>
+                <button type="submit" class="btn btn-save shadow">Simpan & Publikasikan</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ============================================
+        // KONFIGURASI SUPABASE (INLINE)
+        // ============================================
+        const SUPABASE_URL = 'https://ypkfhbzpowqcptthdtip.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwa2ZoYnpwb3dxY3B0dGhkdGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTA3OTMsImV4cCI6MjA4NTM2Njc5M30.MYT20iLhk4K3uuoLbunex6ZKTae9AYMRrYKNAbYs4_U';
+
+        let supabaseClient;
+
+        try {
+            if (typeof window.supabase === 'undefined') {
+                throw new Error('❌ Supabase library belum dimuat!');
+            }
+
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('✅ Supabase Client berhasil diinisialisasi');
+        } catch (error) {
+            console.error('❌ Error inisialisasi Supabase:', error);
+            alert('Gagal terhubung ke database: ' + error.message);
+        }
+
+        // ============================================
+        // ADMIN GUARD - PROTEKSI HALAMAN
+        // ============================================
+        (function checkAdminAccess() {
+            console.log('🔐 Checking admin access...');
+
+            const userId = localStorage.getItem('userId');
+            const userRole = localStorage.getItem('userRole');
+
+            console.log('User ID:', userId);
+            console.log('User Role:', userRole);
+
+            // Cek apakah user sudah login dan role-nya admin
+            if (!userId || userRole !== 'admin') {
+                console.error('❌ Akses ditolak! User bukan admin atau belum login.');
+                alert('⛔ Akses ditolak! Hanya Admin yang diperbolehkan.');
+                window.location.href = '../auth/admin-login.html';
+                return;
+            }
+
+            console.log('✅ Admin access granted');
+        })();
+
+        // ============================================
+        // FORM SUBMISSION HANDLER
+        // ============================================
+        document.addEventListener('DOMContentLoaded', function () {
+            console.log('🔍 DOM ready');
+
+            const createForm = document.getElementById('createElectionForm');
+
+            if (!createForm) {
+                console.error('❌ Form #createElectionForm tidak ditemukan!');
+                return;
+            }
+
+            if (!supabaseClient) {
+                console.error('❌ supabaseClient tidak tersedia!');
+                alert('Error: Koneksi database belum siap.');
+                return;
+            }
+
+            console.log('✅ Form dan database siap');
+
+            createForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                console.log('📝 Form disubmit');
+
+                const formData = new FormData(e.target);
+                const submitBtn = e.target.querySelector('button[type="submit"]');
+
+                // Validasi field required
+                const title = formData.get('title');
+                const startDate = formData.get('start_date');
+                const endDate = formData.get('end_date');
+
+                if (!title || !startDate || !endDate) {
+                    alert('⚠️ Mohon lengkapi semua field yang wajib diisi!');
+                    return;
+                }
+
+                // Validasi tanggal
+                const start = new Date(startDate);
+                const end = new Date(endDate);
+
+                if (end <= start) {
+                    alert('⚠️ Waktu selesai harus lebih besar dari waktu mulai!');
+                    return;
+                }
+
+                // Menyiapkan data
+                const electionData = {
+                    title: title,
+                    description: formData.get('description') || null,
+                    start_date: startDate,
+                    end_date: endDate,
+                    is_active: formData.get('status') === 'Active',
+                    allow_anggota: formData.get('allow_all_active') === '1',
+                    allow_alumni: formData.get('allow_alumni') === '1',
+                    allow_delegasi: formData.get('allow_delegasi') === '1',
+                    created_by: localStorage.getItem('userId')
+                };
+
+                console.log('📤 Data yang akan disimpan:', electionData);
+
+                // Disable tombol submit
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('elections')
+                        .insert([electionData])
+                        .select();
+
+                    if (error) {
+                        console.error('❌ Supabase Error:', error);
+                        throw error;
+                    }
+
+                    console.log('✅ Data berhasil disimpan:', data);
+                    alert('✅ Pemilihan Berhasil Dibuat!');
+
+                    // Redirect ke dashboard
+                    setTimeout(() => {
+                        window.location.href = 'admin-voting-dashboard.html';
+                    }, 500);
+
+                } catch (err) {
+                    console.error('❌ Error saat menyimpan:', err);
+                    alert('❌ Gagal menyimpan: ' + (err.message || 'Unknown error'));
+
+                    // Re-enable tombol
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Simpan & Publikasikan';
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Admin - EEPROM POLINEMA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="icon" href="/images/eeprom_logo.png" type="image/png">
+    <style>
+        :root {
+            --primary-blue: #1A237E;
+            --secondary-blue: #3F51B5;
+            --accent-orange: #FF5722;
+            --light-gray: #F8F9FA;
+            --medium-gray: #E8EAF6;
+            --dark-text: #212529;
+            --soft-text: #495057;
+            --shadow-custom: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --admin-dark: #1e293b;
+            --admin-red: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--medium-gray);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .admin-status-badge {
+            background-color: var(--admin-dark);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .login-card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--shadow-custom);
+            border: none;
+        }
+
+        .logo-wrapper {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .logo-image {
+            width: 80px;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--soft-text);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-control {
+            padding: 12px 15px;
+            border-radius: 10px;
+            border: 1px solid #dee2e6;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus {
+            border-color: var(--admin-dark);
+            box-shadow: 0 0 0 0.25rem rgba(30, 41, 59, 0.1);
+        }
+
+        .input-group-text {
+            background-color: var(--light-gray);
+            border-radius: 10px 0 0 10px;
+        }
+
+        .btn-login {
+            background-color: var(--admin-dark);
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            color: white;
+        }
+
+        .btn-login:hover {
+            background-color: #0f172a;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 41, 59, 0.3);
+        }
+
+        .security-notice {
+            background-color: #fff9db;
+            border: 1px solid #ffe066;
+            padding: 12px;
+            border-radius: 10px;
+            margin-top: 25px;
+            font-size: 0.75rem;
+            color: #856404;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .alert-custom {
+            border-radius: 10px;
+            font-size: 0.85rem;
+            border: none;
+            display: none;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--soft-text);
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            margin-top: 20px;
+            transition: 0.3s;
+            opacity: 0.8;
+        }
+
+        .back-link:hover {
+            opacity: 1;
+            color: var(--admin-dark);
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: #9e9e9e;
+        }
+
+        .helper-text {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #1565c0;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="login-container">
+        <div class="text-center">
+            <div class="admin-status-badge">
+                <i class="bi bi-shield-lock-fill me-2 text-warning"></i> ADMIN CONTROL CENTER
+            </div>
+        </div>
+
+        <div class="login-card">
+            <div class="logo-wrapper">
+                <img src="/images/eeprom_logo.png" alt="EEPROM Logo" class="logo-image">
+                <h4 class="fw-bold mt-3" style="color: var(--admin-dark);">Login Administrator</h4>
+                <p class="text-muted small">Kelola sistem pemilihan E-Voting</p>
+            </div>
+
+            <div id="alertBox" class="alert alert-custom mb-3"></div>
+
+            <form id="adminLoginForm">
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email Admin</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-end-0">
+                            <i class="bi bi-envelope text-muted"></i>
+                        </span>
+                        <input type="email" class="form-control border-start-0" id="email" name="email"
+                            placeholder="admin@eeprom.com" required autocomplete="email">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text border-end-0">
+                            <i class="bi bi-lock text-muted"></i>
+                        </span>
+                        <input type="password" class="form-control border-start-0 border-end-0" id="password"
+                            name="password" placeholder="Password" required autocomplete="current-password">
+                        <button class="btn btn-outline-light border-start-0 text-muted shadow-none" type="button"
+                            id="togglePassword" style="border: 1px solid #dee2e6;">
+                            <i class="bi bi-eye" id="eyeIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-login w-100" id="loginBtn">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Masuk Ke Panel
+                </button>
+            </form>
+
+            <!-- Helper Text untuk Setup -->
+            <div class="helper-text">
+                <strong><i class="bi bi-info-circle me-1"></i> Cara Setup Admin:</strong><br>
+                1. Buka Supabase Dashboard → Authentication → Users<br>
+                2. Klik "Add user" → Email: admin@eeprom.com, Password: admin123<br>
+                3. Centang "Auto Confirm User" → Simpan
+            </div>
+
+            <div class="security-notice">
+                <i class="bi bi-shield-exclamation me-2 fs-5"></i>
+                <span>Area terbatas. Segala bentuk aktivitas ilegal atau percobaan akses tanpa izin akan dicatat oleh
+                    sistem keamanan.</span>
+            </div>
+        </div>
+
+        <div class="text-center">
+            <a href="../auth/select-role.html" class="back-link">
+                <i class="bi bi-arrow-left me-2"></i> Kembali ke Halaman Utama
+            </a>
+            <div class="footer-text">
+                © 2026 EEPROM POLINEMA - Developed by Nisho
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ============================================
+        // KONFIGURASI SUPABASE
+        // ============================================
+        const SUPABASE_URL = 'https://ypkfhbzpowqcptthdtip.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwa2ZoYnpwb3dxY3B0dGhkdGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTA3OTMsImV4cCI6MjA4NTM2Njc5M30.MYT20iLhk4K3uuoLbunex6ZKTae9AYMRrYKNAbYs4_U';
+
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ============================================
+        // TOGGLE PASSWORD VISIBILITY
+        // ============================================
+        const togglePassword = document.querySelector('#togglePassword');
+        const password = document.querySelector('#password');
+        const eyeIcon = document.querySelector('#eyeIcon');
+
+        togglePassword.addEventListener('click', function () {
+            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+            password.setAttribute('type', type);
+            eyeIcon.classList.toggle('bi-eye');
+            eyeIcon.classList.toggle('bi-eye-slash');
+        });
+
+        // ============================================
+        // FORM SUBMIT HANDLER - DENGAN SUPABASE AUTH
+        // ============================================
+        document.getElementById('adminLoginForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const email = document.getElementById('email').value.trim();
+            const passwordInput = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+
+            if (!email || !passwordInput) {
+                showAlert('Mohon isi semua field!', 'warning');
+                return;
+            }
+
+            const originalBtnText = loginBtn.innerHTML;
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memverifikasi...';
+
+            try {
+                console.log('🔐 Attempting login with:', email);
+
+                // LOGIN DENGAN SUPABASE AUTH
+                const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: passwordInput
+                });
+
+                if (authError) {
+                    console.error('❌ Auth error:', authError);
+                    throw new Error(authError.message);
+                }
+
+                if (!authData || !authData.user) {
+                    throw new Error('Login gagal! Data user tidak ditemukan.');
+                }
+
+                console.log('✅ Supabase Auth berhasil:', authData);
+
+                // Simpan session di localStorage
+                localStorage.setItem('userId', authData.user.id);
+                localStorage.setItem('userRole', 'admin'); // Set role sebagai admin
+                localStorage.setItem('userEmail', authData.user.email);
+                localStorage.setItem('adminName', authData.user.email.split('@')[0]); // Gunakan email prefix sebagai nama
+
+                // Simpan access token untuk authenticasi
+                if (authData.session && authData.session.access_token) {
+                    localStorage.setItem('supabase.auth.token', authData.session.access_token);
+                }
+
+                showAlert('✅ Login berhasil! Mengalihkan ke dashboard...', 'success');
+
+                setTimeout(() => {
+                    window.location.href = '../admin/admin-voting-dashboard.html';
+                }, 1500);
+
+            } catch (error) {
+                console.error('❌ Login error:', error);
+
+                let errorMessage = error.message;
+
+                // Translate error messages ke Bahasa Indonesia
+                if (errorMessage.includes('Invalid login credentials')) {
+                    errorMessage = 'Email atau password salah!';
+                } else if (errorMessage.includes('Email not confirmed')) {
+                    errorMessage = 'Email belum dikonfirmasi!';
+                } else if (errorMessage.includes('User not found')) {
+                    errorMessage = 'User tidak ditemukan!';
+                }
+
+                showAlert(errorMessage, 'danger');
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = originalBtnText;
+            }
+        });
+
+        // ============================================
+        // HELPER: SHOW ALERT
+        // ============================================
+        function showAlert(message, type = 'info') {
+            const alertBox = document.getElementById('alertBox');
+            const icons = {
+                'success': 'bi-check-circle-fill',
+                'danger': 'bi-x-circle-fill',
+                'warning': 'bi-exclamation-triangle-fill'
+            };
+
+            alertBox.className = `alert alert-${type} alert-custom d-block`;
+            alertBox.innerHTML = `<i class="bi ${icons[type] || 'bi-info-circle-fill'} me-2"></i> ${message}`;
+
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
+        }
+
+        // ============================================
+        // REDIRECT IF ALREADY LOGGED IN
+        // ============================================
+        window.addEventListener('DOMContentLoaded', async function () {
+            console.log('🔍 Checking existing session...');
+
+            // Check Supabase session
+            const { data: { session } } = await supabaseClient.auth.getSession();
+
+            if (session) {
+                console.log('✅ Session found, redirecting...');
+
+                // Pastikan localStorage juga ter-set
+                localStorage.setItem('userId', session.user.id);
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('userEmail', session.user.email);
+
+                window.location.href = '../admin/admin-voting-dashboard.html';
+            }
+        });
+    </script>
+</body>
+
+</html>

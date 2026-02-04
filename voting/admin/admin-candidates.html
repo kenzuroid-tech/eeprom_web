@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kelola Kandidat - EEPROM Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="icon" href="/images/eeprom_logo.png" type="image/png">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f8f9fa;
+        }
+        .card {
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .candidate-photo {
+            width: 120px;
+            height: 120px;
+            object-fit: cover;
+            border: 3px solid #1A237E;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid p-4">
+        <nav class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a href="admin-voting-dashboard.html" class="btn btn-sm btn-light border me-3">
+                    <i class="bi bi-arrow-left"></i> Kembali
+                </a>
+                <span class="h4 fw-bold">Kelola Kandidat</span>
+            </div>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addCandidateModal">
+                <i class="bi bi-plus-circle me-2"></i>Tambah Kandidat
+            </button>
+        </nav>
+
+        <!-- Election Info -->
+        <div class="card border-0 shadow-sm mb-4">
+            <div class="card-body">
+                <h5 class="fw-bold text-primary" id="electionTitle">Loading...</h5>
+                <p class="text-muted mb-0" id="electionDates">Loading...</p>
+            </div>
+        </div>
+
+        <!-- Candidates List -->
+        <div class="row g-4" id="candidatesList">
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+                <p class="mt-3">Memuat kandidat...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Candidate Modal -->
+    <div class="modal fade" id="addCandidateModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold">Tambah Kandidat Baru</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="addCandidateForm">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Nama Lengkap <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="name" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Nomor Urut <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" name="candidate_number" min="1" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Posisi</label>
+                                <input type="text" class="form-control" name="position" placeholder="Contoh: Ketua Umum">
+                                <small class="text-muted">Opsional - Kosongkan jika tidak diperlukan</small>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">URL Foto</label>
+                                <input type="url" class="form-control" name="photo_url" placeholder="https://...">
+                                <small class="text-muted">Gunakan URL gambar dari hosting seperti ImgBB atau Imgur</small>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Visi</label>
+                                <textarea class="form-control" name="vision" rows="3" placeholder="Tulis visi kandidat..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Misi</label>
+                                <textarea class="form-control" name="mission" rows="3" placeholder="Tulis misi kandidat..."></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Biografi</label>
+                                <textarea class="form-control" name="biography" rows="3" placeholder="Tulis biografi singkat kandidat..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-save me-2"></i>Simpan Kandidat
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Candidate Modal -->
+    <div class="modal fade" id="editCandidateModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-warning">
+                    <h5 class="modal-title fw-bold">Edit Kandidat</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form id="editCandidateForm">
+                    <input type="hidden" name="id" id="editId">
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Nama Lengkap <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="name" id="editName" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Nomor Urut <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" name="candidate_number" id="editCandidateNumber" min="1" required>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Posisi</label>
+                                <input type="text" class="form-control" name="position" id="editPosition">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">URL Foto</label>
+                                <input type="url" class="form-control" name="photo_url" id="editPhotoUrl">
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Visi</label>
+                                <textarea class="form-control" name="vision" id="editVision" rows="3"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Misi</label>
+                                <textarea class="form-control" name="mission" id="editMission" rows="3"></textarea>
+                            </div>
+                            <div class="col-12">
+                                <label class="form-label fw-bold">Biografi</label>
+                                <textarea class="form-control" name="biography" id="editBiography" rows="3"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-warning">
+                            <i class="bi bi-save me-2"></i>Update Kandidat
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // ============================================
+        // KONFIGURASI SUPABASE
+        // ============================================
+        const SUPABASE_URL = 'https://ypkfhbzpowqcptthdtip.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwa2ZoYnpwb3dxY3B0dGhkdGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTA3OTMsImV4cCI6MjA4NTM2Njc5M30.MYT20iLhk4K3uuoLbunex6ZKTae9AYMRrYKNAbYs4_U';
+
+        let supabaseClient;
+
+        try {
+            supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            console.log('✅ Supabase Client berhasil diinisialisasi');
+        } catch (error) {
+            console.error('❌ Error inisialisasi Supabase:', error);
+            alert('Gagal terhubung ke database');
+        }
+
+        // ============================================
+        // ADMIN GUARD - DIPERBAIKI!
+        // ============================================
+        (function checkAdminAccess() {
+            // Cek semua kemungkinan key yang mungkin disimpan saat login
+            const userId = localStorage.getItem('userId') || localStorage.getItem('adminId');
+            const userRole = localStorage.getItem('userRole') || localStorage.getItem('adminRole') || localStorage.getItem('role');
+
+            console.log('🔍 Checking admin access...');
+            console.log('userId:', userId);
+            console.log('userRole:', userRole);
+            console.log('All localStorage:', {...localStorage});
+
+            if (!userId) {
+                console.log('❌ No userId found');
+                alert('⛔ Akses ditolak! Silakan login terlebih dahulu.');
+                window.location.href = '../auth/admin-login.html';
+                return;
+            }
+
+            if (userRole !== 'admin') {
+                console.log('❌ Role is not admin:', userRole);
+                alert('⛔ Akses ditolak! Hanya Admin yang diperbolehkan.');
+                window.location.href = '../auth/admin-login.html';
+                return;
+            }
+
+            console.log('✅ Admin access granted');
+        })();
+
+        // ============================================
+        // GLOBAL VARIABLES
+        // ============================================
+        let activeElection = null;
+
+        // ============================================
+        // HELPER FUNCTIONS
+        // ============================================
+        function formatDate(dateString) {
+            const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
+            return new Date(dateString).toLocaleDateString('id-ID', options);
+        }
+
+        // ============================================
+        // LOAD PAGE
+        // ============================================
+        async function loadPage() {
+            console.log('🔄 Loading page...');
+
+            try {
+                // Get active election
+                const { data: election, error } = await supabaseClient
+                    .from('elections')
+                    .select('*')
+                    .eq('is_active', true)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
+
+                if (error) {
+                    console.error('Error fetching election:', error);
+                    throw error;
+                }
+
+                if (!election) {
+                    alert('❌ Tidak ada pemilihan aktif! Silakan buat pemilihan terlebih dahulu.');
+                    window.location.href = 'admin-voting-dashboard.html';
+                    return;
+                }
+
+                activeElection = election;
+                console.log('✅ Active election:', election);
+
+                // Display election info
+                document.getElementById('electionTitle').textContent = election.title;
+                document.getElementById('electionDates').textContent = 
+                    `${formatDate(election.start_date)} - ${formatDate(election.end_date)}`;
+
+                // Load candidates
+                await loadCandidates();
+
+            } catch (error) {
+                console.error('❌ Error loading page:', error);
+                alert('Gagal memuat halaman: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // LOAD CANDIDATES
+        // ============================================
+        async function loadCandidates() {
+            try {
+                console.log('📋 Loading candidates for election:', activeElection.id);
+
+                const { data: candidates, error } = await supabaseClient
+                    .from('candidates')
+                    .select('*')
+                    .eq('election_id', activeElection.id)
+                    .order('candidate_number');
+
+                if (error) throw error;
+
+                console.log('✅ Candidates loaded:', candidates);
+
+                if (candidates.length === 0) {
+                    document.getElementById('candidatesList').innerHTML = `
+                        <div class="col-12 text-center py-5">
+                            <i class="bi bi-inbox display-1 text-muted"></i>
+                            <h5 class="mt-3">Belum ada kandidat</h5>
+                            <p class="text-muted">Klik "Tambah Kandidat" untuk menambah kandidat pertama!</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const candidatesHtml = candidates.map(c => `
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <img src="${c.photo_url || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(c.name) + '&size=120&background=1A237E&color=fff'}" 
+                                         class="rounded-circle candidate-photo" 
+                                         alt="${c.name}">
+                                </div>
+                                <div class="text-center">
+                                    <span class="badge bg-primary mb-2 fs-6">Nomor ${c.candidate_number}</span>
+                                    <h5 class="fw-bold mb-1">${c.name}</h5>
+                                    ${c.position ? `<p class="text-muted small mb-2"><i class="bi bi-briefcase me-1"></i>${c.position}</p>` : ''}
+                                </div>
+                                
+                                ${c.vision ? `
+                                    <div class="mt-3">
+                                        <p class="small mb-1 fw-bold text-primary"><i class="bi bi-eye me-1"></i>Visi:</p>
+                                        <p class="small text-muted">${c.vision.length > 100 ? c.vision.substring(0, 100) + '...' : c.vision}</p>
+                                    </div>
+                                ` : ''}
+                                
+                                ${c.mission ? `
+                                    <div class="mt-2">
+                                        <p class="small mb-1 fw-bold text-success"><i class="bi bi-bullseye me-1"></i>Misi:</p>
+                                        <p class="small text-muted">${c.mission.length > 100 ? c.mission.substring(0, 100) + '...' : c.mission}</p>
+                                    </div>
+                                ` : ''}
+                                
+                                <div class="mt-3 text-center">
+                                    <small class="text-muted">
+                                        <i class="bi bi-graph-up me-1"></i>
+                                        Total Suara: <strong>${c.total_votes || 0}</strong>
+                                    </small>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white border-top-0 d-flex gap-2">
+                                <button class="btn btn-sm btn-warning flex-fill" onclick='editCandidate(${JSON.stringify(c).replace(/'/g, "\\'")})'> 
+                                    <i class="bi bi-pencil"></i> Edit
+                                </button>
+                                <button class="btn btn-sm btn-danger" onclick="deleteCandidate('${c.id}')">
+                                    <i class="bi bi-trash"></i> Hapus
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById('candidatesList').innerHTML = candidatesHtml;
+
+            } catch (error) {
+                console.error('❌ Error loading candidates:', error);
+                alert('Gagal memuat kandidat: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // ADD CANDIDATE
+        // ============================================
+        document.getElementById('addCandidateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('➕ Adding new candidate...');
+
+            const formData = new FormData(e.target);
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+
+            const data = {
+                election_id: activeElection.id,
+                name: formData.get('name'),
+                candidate_number: parseInt(formData.get('candidate_number')),
+                position: formData.get('position') || null,
+                photo_url: formData.get('photo_url') || null,
+                vision: formData.get('vision') || null,
+                mission: formData.get('mission') || null,
+                biography: formData.get('biography') || null,
+                total_votes: 0
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+
+            try {
+                const { error } = await supabaseClient
+                    .from('candidates')
+                    .insert([data]);
+
+                if (error) throw error;
+
+                console.log('✅ Candidate added successfully');
+                alert('✅ Kandidat berhasil ditambahkan!');
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('addCandidateModal'));
+                modal.hide();
+                e.target.reset();
+                
+                await loadCandidates();
+
+            } catch (error) {
+                console.error('❌ Error adding candidate:', error);
+                alert('❌ Gagal menambah kandidat: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        });
+
+        // ============================================
+        // EDIT CANDIDATE
+        // ============================================
+        function editCandidate(candidate) {
+            console.log('✏️ Editing candidate:', candidate);
+
+            document.getElementById('editId').value = candidate.id;
+            document.getElementById('editName').value = candidate.name;
+            document.getElementById('editCandidateNumber').value = candidate.candidate_number;
+            document.getElementById('editPosition').value = candidate.position || '';
+            document.getElementById('editPhotoUrl').value = candidate.photo_url || '';
+            document.getElementById('editVision').value = candidate.vision || '';
+            document.getElementById('editMission').value = candidate.mission || '';
+            document.getElementById('editBiography').value = candidate.biography || '';
+
+            new bootstrap.Modal(document.getElementById('editCandidateModal')).show();
+        }
+
+        document.getElementById('editCandidateForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            console.log('💾 Updating candidate...');
+
+            const formData = new FormData(e.target);
+            const id = formData.get('id');
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            const originalBtnText = submitBtn.innerHTML;
+
+            const data = {
+                name: formData.get('name'),
+                candidate_number: parseInt(formData.get('candidate_number')),
+                position: formData.get('position') || null,
+                photo_url: formData.get('photo_url') || null,
+                vision: formData.get('vision') || null,
+                mission: formData.get('mission') || null,
+                biography: formData.get('biography') || null,
+                updated_at: new Date().toISOString()
+            };
+
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
+
+            try {
+                const { error } = await supabaseClient
+                    .from('candidates')
+                    .update(data)
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                console.log('✅ Candidate updated successfully');
+                alert('✅ Kandidat berhasil diupdate!');
+                
+                const modal = bootstrap.Modal.getInstance(document.getElementById('editCandidateModal'));
+                modal.hide();
+                
+                await loadCandidates();
+
+            } catch (error) {
+                console.error('❌ Error updating candidate:', error);
+                alert('❌ Gagal update kandidat: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+            }
+        });
+
+        // ============================================
+        // DELETE CANDIDATE
+        // ============================================
+        async function deleteCandidate(id) {
+            console.log('🗑️ Deleting candidate:', id);
+
+            if (!confirm('⚠️ Apakah Anda yakin ingin menghapus kandidat ini? Tindakan ini tidak dapat dibatalkan!')) {
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('candidates')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+
+                console.log('✅ Candidate deleted successfully');
+                alert('✅ Kandidat berhasil dihapus!');
+                
+                await loadCandidates();
+
+            } catch (error) {
+                console.error('❌ Error deleting candidate:', error);
+                alert('❌ Gagal menghapus kandidat: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // INITIALIZE ON PAGE LOAD
+        // ============================================
+        window.addEventListener('load', () => {
+            console.log('🚀 Page loaded, initializing...');
+            loadPage();
+        });
+    </script>
+</body>
+</html>

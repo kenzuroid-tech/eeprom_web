@@ -90,7 +90,7 @@ function createMemberCard(member, isLeader = false) {
                     ${member.jabatan.toUpperCase()}
                 </span>
                 <br>
-                <a href="/profile.html?nim=${member.nim}" class="btn-profile">View Profile <i class="bi bi-arrow-right ms-1"></i></a>
+                <a href="/members/profile.html?nim=${member.nim}" class="btn-profile">View Profile <i class="bi bi-arrow-right ms-1"></i></a>
             </div>
         `;
     }
@@ -107,7 +107,7 @@ function createMemberCard(member, isLeader = false) {
                 ${roleDisplay}
             </span>
             <br>
-            <a href="/profile.html?nim=${member.nim}" class="btn-profile">View Profile <i class="bi bi-arrow-right ms-1"></i></a>
+            <a href="/members/profile.html?nim=${member.nim}" class="btn-profile">View Profile <i class="bi bi-arrow-right ms-1"></i></a>
         </div>
     `;
 }
