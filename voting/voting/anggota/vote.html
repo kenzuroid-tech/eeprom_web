@@ -31,29 +31,52 @@
         body {
             background-color: var(--medium-gray);
             min-height: 100vh;
-            padding: 20px 0;
+            padding: 0;
+            margin: 0;
         }
 
         /* Header Section */
         .voting-header {
             background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
             color: white;
-            padding: 2rem 0;
-            margin-bottom: 2rem;
+            padding: 1.5rem 0;
+            margin-bottom: 1.5rem;
             box-shadow: var(--shadow-custom);
         }
 
         .header-content {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 15px;
+        }
+
+        .header-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .header-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .btn-logout {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            border-radius: 8px;
         }
 
         .user-info-card {
             background: rgba(255, 255, 255, 0.15);
-            border-radius: 15px;
-            padding: 1.5rem;
+            border-radius: 12px;
+            padding: 1rem;
             backdrop-filter: blur(10px);
+            margin-top: 1rem;
+        }
+
+        .user-info-title {
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
         }
 
         .user-badge {
@@ -61,40 +84,47 @@
             color: var(--primary-blue);
             display: inline-flex;
             align-items: center;
-            padding: 0.4rem 1rem;
-            border-radius: 8px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
             margin: 0.25rem;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
         }
 
         .user-badge i {
-            margin-right: 0.5rem;
+            margin-right: 0.4rem;
+            font-size: 0.9rem;
         }
 
         /* Main Container */
         .voting-container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 0 20px;
+            padding: 0 15px 2rem;
         }
 
         /* Alert Box */
         .alert-custom {
-            border-radius: 12px;
-            padding: 1rem 1.25rem;
+            border-radius: 10px;
+            padding: 1rem;
             margin-bottom: 1.5rem;
             display: none;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-size: 0.9rem;
         }
 
         /* Voting Status Card */
         .voting-status-card {
             background: white;
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            border-radius: 12px;
+            padding: 1.25rem;
+            margin-bottom: 1.5rem;
             box-shadow: var(--shadow-custom);
+        }
+
+        .status-title {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
         }
 
         .status-indicator {
@@ -107,28 +137,44 @@
         }
 
         .status-icon {
-            width: 50px;
-            height: 50px;
+            width: 45px;
+            height: 45px;
             background: var(--success-green);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 1.5rem;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+
+        .status-text h6 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .status-text p {
+            font-size: 0.85rem;
+            margin-bottom: 0;
         }
 
         /* Candidate Cards */
+        .section-title {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
+
         .candidates-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
         }
 
         .candidate-card {
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
             box-shadow: var(--shadow-custom);
             transition: all 0.3s ease;
@@ -136,8 +182,8 @@
         }
 
         .candidate-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
         }
 
         .candidate-card.selected {
@@ -148,19 +194,25 @@
         .candidate-header {
             background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
             color: white;
-            padding: 1rem;
+            padding: 0.875rem;
             text-align: center;
         }
 
         .candidate-number {
-            font-size: 2rem;
+            font-size: 1.75rem;
             font-weight: 800;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .candidate-position {
+            font-size: 0.85rem;
+            font-weight: 600;
+            opacity: 0.9;
         }
 
         .candidate-photo {
             width: 100%;
-            height: 280px;
+            height: 240px;
             object-fit: cover;
             background: #e2e8f0;
             display: flex;
@@ -177,38 +229,56 @@
         .candidate-photo.no-photo {
             background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
             color: #94a3b8;
-            font-size: 4rem;
+            font-size: 3.5rem;
         }
 
         .candidate-body {
-            padding: 1.5rem;
+            padding: 1.25rem;
         }
 
         .candidate-name {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             font-weight: 700;
             color: var(--dark-text);
             margin-bottom: 0.5rem;
+            line-height: 1.3;
         }
 
-        .candidate-position {
+        .candidate-position-text {
             color: var(--secondary-blue);
             font-weight: 600;
             margin-bottom: 1rem;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
+        }
+
+        .btn-detail {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            color: var(--secondary-blue);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            margin-bottom: 0.75rem;
+        }
+
+        .btn-detail:hover {
+            background: #f1f5f9;
+            border-color: var(--secondary-blue);
         }
 
         .vote-button {
             width: 100%;
             padding: 0.875rem;
-            border-radius: 10px;
+            border-radius: 8px;
             border: 2px solid var(--secondary-blue);
             background: white;
             color: var(--secondary-blue);
             font-weight: 700;
-            font-size: 1rem;
+            font-size: 0.95rem;
             transition: all 0.3s;
-            margin-top: 1rem;
         }
 
         .vote-button:hover:not(:disabled) {
@@ -231,26 +301,36 @@
         /* Submit Section */
         .submit-section {
             background: white;
-            border-radius: 15px;
-            padding: 2rem;
+            border-radius: 12px;
+            padding: 1.5rem;
             box-shadow: var(--shadow-custom);
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .submit-title {
+            font-size: 1.05rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .selected-text {
+            font-size: 0.9rem;
         }
 
         .btn-submit-vote {
             background: linear-gradient(135deg, var(--success-green) 0%, #059669 100%);
             border: none;
             padding: 1rem 2rem;
-            border-radius: 12px;
+            border-radius: 10px;
             font-weight: 700;
             color: white;
-            font-size: 1.1rem;
+            font-size: 1rem;
             transition: all 0.3s;
+            width: 100%;
         }
 
         .btn-submit-vote:hover:not(:disabled) {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
         }
 
         .btn-submit-vote:disabled {
@@ -274,8 +354,9 @@
         .loading-content {
             background: white;
             padding: 2rem;
-            border-radius: 15px;
+            border-radius: 12px;
             text-align: center;
+            max-width: 90%;
         }
 
         .selected-candidate-preview {
@@ -297,26 +378,185 @@
 
         .empty-state {
             text-align: center;
-            padding: 4rem 2rem;
+            padding: 3rem 1.5rem;
             background: white;
-            border-radius: 15px;
+            border-radius: 12px;
             box-shadow: var(--shadow-custom);
         }
 
+        .empty-state i {
+            font-size: 4rem;
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+        }
+
+        /* Modal Styling */
         .modal-content {
-            border-radius: 15px;
+            border-radius: 12px;
             border: none;
         }
 
         .modal-header {
             background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
             color: white;
-            border-radius: 15px 15px 0 0;
+            border-radius: 12px 12px 0 0;
+            padding: 1.25rem;
         }
 
+        .modal-title {
+            font-size: 1.1rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+        }
+
+        /* Vision Mission Detail Modal */
+        .detail-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .detail-section h6 {
+            color: var(--primary-blue);
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .detail-section p,
+        .detail-section ul {
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--soft-text);
+        }
+
+        .detail-section ul {
+            padding-left: 1.5rem;
+        }
+
+        .detail-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .candidate-detail-header {
+            text-align: center;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e2e8f0;
+            margin-bottom: 1.5rem;
+        }
+
+        .candidate-detail-photo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 1rem;
+            display: block;
+            border: 4px solid var(--secondary-blue);
+        }
+
+        .candidate-detail-photo.no-photo {
+            background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 3rem;
+        }
+
+        /* Mobile Responsive */
         @media (max-width: 768px) {
+            .voting-header {
+                padding: 1rem 0;
+            }
+
+            .header-title {
+                font-size: 1.25rem;
+            }
+
+            .header-subtitle {
+                font-size: 0.85rem;
+            }
+
+            .btn-logout {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.85rem;
+            }
+
+            .user-badge {
+                font-size: 0.75rem;
+                padding: 0.35rem 0.7rem;
+                margin: 0.2rem;
+            }
+
             .candidates-grid {
                 grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .candidate-photo {
+                height: 220px;
+            }
+
+            .submit-section {
+                padding: 1.25rem;
+            }
+
+            .btn-submit-vote {
+                font-size: 0.95rem;
+                padding: 0.875rem 1.5rem;
+            }
+
+            .modal-body {
+                padding: 1.25rem;
+            }
+
+            .candidate-detail-photo {
+                width: 100px;
+                height: 100px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .voting-container {
+                padding: 0 10px 1.5rem;
+            }
+
+            .section-title,
+            .status-title,
+            .submit-title {
+                font-size: 1rem;
+            }
+
+            .candidate-name {
+                font-size: 1.05rem;
+            }
+
+            .status-icon {
+                width: 40px;
+                height: 40px;
+                font-size: 1.1rem;
+            }
+
+            .status-text h6 {
+                font-size: 0.95rem;
+            }
+
+            .status-text p {
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .candidates-grid {
+                grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
             }
         }
     </style>
@@ -332,23 +572,23 @@
 
     <div class="voting-header">
         <div class="header-content">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                    <h3 class="mb-1 fw-bold">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="flex-grow-1">
+                    <h3 class="mb-1 fw-bold header-title">
                         <i class="bi bi-box-seam-fill me-2"></i>
-                        Voting Dashboard Anggota
+                        Voting Dashboard
                     </h3>
-                    <p class="mb-0 opacity-75">Gunakan hak suara Anda untuk masa depan EEPROM</p>
+                    <p class="mb-0 opacity-75 header-subtitle">Gunakan hak suara Anda untuk masa depan EEPROM</p>
                 </div>
-                <button class="btn btn-light" onclick="logout()">
-                    <i class="bi bi-box-arrow-right me-2"></i> Keluar
+                <button class="btn btn-light btn-logout" onclick="logout()">
+                    <i class="bi bi-box-arrow-right me-1"></i> Keluar
                 </button>
             </div>
 
             <div class="user-info-card">
                 <div class="d-flex align-items-center mb-2">
-                    <i class="bi bi-person-circle fs-4 me-2"></i>
-                    <h6 class="mb-0 fw-bold">Informasi Voter Anggota</h6>
+                    <i class="bi bi-person-circle fs-5 me-2"></i>
+                    <h6 class="mb-0 fw-bold user-info-title">Informasi Voter</h6>
                 </div>
                 <div class="d-flex flex-wrap">
                     <span class="user-badge">
@@ -376,7 +616,7 @@
         <div id="alertBox" class="alert alert-custom"></div>
 
         <div class="voting-status-card">
-            <h5 class="fw-bold mb-3">
+            <h5 class="fw-bold status-title">
                 <i class="bi bi-clipboard-check me-2"></i>
                 Status Voting
             </h5>
@@ -384,15 +624,15 @@
                 <div class="status-icon">
                     <i class="bi bi-hourglass-split"></i>
                 </div>
-                <div>
+                <div class="status-text">
                     <h6 class="mb-1 fw-bold">Belum Memilih</h6>
-                    <p class="mb-0 text-muted small">Silakan pilih kandidat terbaik Anda</p>
+                    <p class="mb-0 text-muted">Silakan pilih kandidat terbaik Anda</p>
                 </div>
             </div>
         </div>
 
         <div class="mb-4">
-            <h5 class="fw-bold mb-3">
+            <h5 class="fw-bold section-title">
                 <i class="bi bi-people-fill me-2"></i>
                 Daftar Kandidat
             </h5>
@@ -403,11 +643,11 @@
         <div class="submit-section">
             <div class="row align-items-center">
                 <div class="col-md-8 mb-3 mb-md-0">
-                    <h5 class="fw-bold mb-2">
+                    <h5 class="fw-bold mb-2 submit-title">
                         <i class="bi bi-check-circle me-2"></i>
                         Kandidat Pilihan Anda
                     </h5>
-                    <p class="mb-0 text-muted" id="selectedCandidateText">
+                    <p class="mb-0 text-muted selected-text" id="selectedCandidateText">
                         Belum ada kandidat yang dipilih
                     </p>
                 </div>
@@ -423,6 +663,30 @@
         </div>
     </div>
 
+    <!-- Detail Modal -->
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                        Detail Kandidat
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="detailModalBody">
+                    <!-- Content will be injected here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-circle me-2"></i>Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
     <div class="modal fade" id="confirmModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
@@ -455,8 +719,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="../../../js/config/supabase-config.js"></script>
-    <!-- Temporary disable auth-helper to prevent unwanted redirects -->
-    <!-- <script src="../../../js/auth/auth-helper.js"></script> -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
@@ -464,6 +726,7 @@
         let selectedCandidateData = null;
         let currentElectionId = null;
         let hasVoted = false;
+        let candidatesData = [];
 
         window.addEventListener('DOMContentLoaded', async function () {
             // Check Session Anggota
@@ -503,7 +766,7 @@
 
                 if (electionError || !election) {
                     console.error('No active election found');
-                    return; // Jangan tampilkan alert, biarkan silent
+                    return;
                 }
 
                 currentElectionId = election.id;
@@ -521,7 +784,7 @@
                     .select('*')
                     .eq('voter_role', 'anggota')
                     .eq('election_id', currentElectionId)
-                    .eq('voter_identifier', currentNim); // Cek berdasarkan NIM
+                    .eq('voter_identifier', currentNim);
 
                 console.log('Existing votes check:', { voteData, voteError });
 
@@ -533,7 +796,6 @@
                 }
             } catch (error) {
                 console.error('Error checking voting status:', error);
-                // Jangan tampilkan alert error, biarkan silent
             }
         }
 
@@ -558,9 +820,9 @@
                     <div class="status-icon" style="background: var(--success-green);">
                         <i class="bi bi-check-circle-fill"></i>
                     </div>
-                    <div>
+                    <div class="status-text">
                         <h6 class="mb-1 fw-bold text-success">Sudah Voting</h6>
-                        <p class="mb-0 text-muted small">Terima kasih atas partisipasi Anda!</p>
+                        <p class="mb-0 text-muted">Terima kasih atas partisipasi Anda!</p>
                     </div>
                 `;
             }
@@ -596,6 +858,7 @@
                     return;
                 }
 
+                candidatesData = candidates;
                 renderCandidates(candidates);
             } catch (error) {
                 console.error('Error:', error);
@@ -612,11 +875,15 @@
                         <div class="candidate-number">No. ${c.candidate_number}</div>
                         <div class="candidate-position">${c.position || 'Kandidat'}</div>
                     </div>
-                    <div class="candidate-photo">
-                        ${c.photo_url ? `<img src="${c.photo_url}" alt="${c.name}">` : '<div class="no-photo"><i class="bi bi-person-circle"></i></div>'}
+                    <div class="candidate-photo ${!c.photo_url ? 'no-photo' : ''}">
+                        ${c.photo_url ? `<img src="${c.photo_url}" alt="${c.name}">` : '<i class="bi bi-person-circle"></i>'}
                     </div>
                     <div class="candidate-body">
                         <h5 class="candidate-name">${c.name}</h5>
+                        <button class="btn btn-detail" onclick="showDetail('${c.id}')">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Lihat Visi & Misi
+                        </button>
                         <button class="vote-button" onclick="selectCandidate('${c.id}', '${c.name.replace(/'/g, "\\'")}', '${c.photo_url || ''}', ${c.candidate_number})" ${hasVoted ? 'disabled' : ''}>
                             <i class="bi bi-hand-thumbs-up-fill me-2"></i>
                             ${hasVoted ? 'Sudah Voting' : 'Pilih Kandidat'}
@@ -624,6 +891,47 @@
                     </div>
                 </div>
             `).join('');
+        }
+
+        // Show candidate detail
+        function showDetail(candidateId) {
+            const candidate = candidatesData.find(c => c.id === candidateId);
+            if (!candidate) return;
+
+            const photoHtml = candidate.photo_url
+                ? `<img src="${candidate.photo_url}" alt="${candidate.name}" class="candidate-detail-photo">`
+                : `<div class="candidate-detail-photo no-photo">
+                    <i class="bi bi-person-circle"></i>
+                </div>`;
+
+            const visionHtml = candidate.vision
+                ? `<div class="detail-section">
+                    <h6><i class="bi bi-eye-fill"></i> Visi</h6>
+                    <p>${candidate.vision}</p>
+                </div>`
+                : '';
+
+            const missionHtml = candidate.mission
+                ? `<div class="detail-section">
+                    <h6><i class="bi bi-list-check"></i> Misi</h6>
+                    <p>${candidate.mission.replace(/\n/g, '<br>')}</p>
+                </div>`
+                : '';
+
+            const detailContent = `
+                <div class="candidate-detail-header">
+                    ${photoHtml}
+                    <h4 class="fw-bold mb-1">No. ${candidate.candidate_number}</h4>
+                    <h3 class="fw-bold text-primary mb-2">${candidate.name}</h3>
+                    <p class="text-muted mb-0">${candidate.position || 'Kandidat'}</p>
+                </div>
+                ${visionHtml}
+                ${missionHtml}
+                ${!candidate.vision && !candidate.mission ? '<p class="text-muted text-center py-3">Belum ada visi dan misi yang ditambahkan.</p>' : ''}
+            `;
+
+            document.getElementById('detailModalBody').innerHTML = detailContent;
+            new bootstrap.Modal(document.getElementById('detailModal')).show();
         }
 
         // Select candidate
@@ -635,6 +943,15 @@
 
             document.querySelectorAll('.candidate-card').forEach(c => c.classList.remove('selected'));
             document.querySelector(`[data-candidate-id="${id}"]`).classList.add('selected');
+
+            document.querySelectorAll('.vote-button').forEach(btn => {
+                btn.classList.remove('selected');
+                btn.innerHTML = '<i class="bi bi-hand-thumbs-up-fill me-2"></i>Pilih Kandidat';
+            });
+
+            const selectedButton = document.querySelector(`[data-candidate-id="${id}"] .vote-button`);
+            selectedButton.classList.add('selected');
+            selectedButton.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Kandidat Dipilih';
 
             document.getElementById('selectedCandidateText').innerHTML = `
                 <i class="bi bi-check-circle-fill text-success me-2"></i>
@@ -648,9 +965,9 @@
                 <div class="status-icon" style="background: var(--accent-orange);">
                     <i class="bi bi-hand-index-thumb"></i>
                 </div>
-                <div>
+                <div class="status-text">
                     <h6 class="mb-1 fw-bold" style="color: var(--accent-orange);">Kandidat Dipilih</h6>
-                    <p class="mb-0 text-muted small">Klik "Kirim Suara" untuk mengirim pilihan Anda</p>
+                    <p class="mb-0 text-muted">Klik "Kirim Suara" untuk mengirim pilihan Anda</p>
                 </div>
             `;
         }
@@ -709,7 +1026,7 @@
                         election_id: currentElectionId,
                         candidate_id: selectedCandidateId,
                         voter_role: 'anggota',
-                        voter_identifier: currentNim, // Simpan NIM sebagai identifier
+                        voter_identifier: currentNim,
                         voted_at: new Date().toISOString(),
                         ip_address: ipAddress,
                         user_agent: userAgent
@@ -761,7 +1078,7 @@
             const grid = document.getElementById('candidatesGrid');
             grid.innerHTML = `
                 <div class="empty-state" style="grid-column: 1/-1;">
-                    <i class="bi bi-inbox" style="font-size: 5rem; color: #cbd5e1;"></i>
+                    <i class="bi bi-inbox"></i>
                     <h5 class="fw-bold">Belum Ada Kandidat</h5>
                     <p class="text-muted">Kandidat belum tersedia untuk pemilihan ini</p>
                 </div>
@@ -792,7 +1109,7 @@
 
         // Logout
         function logout() {
-            if (confirm('Keluar?')) {
+            if (confirm('Keluar dari dashboard voting?')) {
                 localStorage.clear();
                 window.location.href = '../../auth/anggota/login-anggota.html';
             }
