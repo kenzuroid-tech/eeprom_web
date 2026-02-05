@@ -1,87 +1,173 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Kelola Kode Akses - EEPROM Admin</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="icon" href="/images/eeprom_logo.png" type="image/png">
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: #f8f9fa;
+        :root {
+            --primary-color: #1A237E;
+            --accent-color: #3949AB;
+            --bg-body: #F4F7FE;
+            --sidebar-width: 260px;
+            /* Samakan dengan lebar sidebar.html */
         }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-body);
+            color: #2D3748;
+            margin: 0;
+        }
+
+        /* PERBAIKAN UTAMA: Agar konten tidak terpotong sidebar */
+        .admin-main-content {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            min-height: 100vh;
+            padding: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        /* Navbar Atas */
+        .page-header {
+            background: white;
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid #E2E8F0;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .card {
+            border: none;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(165, 173, 211, 0.15);
+        }
+
         .code-badge {
             font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            padding: 0.5rem 0.75rem;
+            font-weight: 700;
+            background: rgba(26, 35, 126, 0.08);
+            color: var(--primary-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            letter-spacing: 1px;
         }
+
         .search-box {
+            border-radius: 12px;
+            padding: 12px 20px;
+            border: 1px solid #E2E8F0;
+        }
+
+        .nav-tabs {
+            border-bottom: none;
+        }
+
+        .nav-tabs .nav-link {
+            border: none;
+            color: #718096;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
             border-radius: 10px;
+            margin-right: 0.5rem;
+        }
+
+        .nav-tabs .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: 0 4px 12px rgba(26, 35, 126, 0.2);
+        }
+
+        /* Responsif Sidebar */
+        @media (max-width: 992px) {
+            .admin-main-content {
+                margin-left: 85px;
+                /* Sesuaikan dengan lebar sidebar mini */
+                width: calc(100% - 85px);
+            }
+        }
+
+        @media (max-width: 576px) {
+            .admin-main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem;
+            }
         }
     </style>
 </head>
-<body>
-    <div class="container-fluid p-4">
-        <nav class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <a href="admin-voting-dashboard.html" class="btn btn-sm btn-light border me-3">
-                    <i class="bi bi-arrow-left"></i>
-                </a>
-                <span class="h4 fw-bold">Kelola Kode Akses</span>
-            </div>
-            <div>
-                <button class="btn btn-success me-2" onclick="showGenerateModal()">
-                    <i class="bi bi-plus-circle me-2"></i>Generate Kode
-                </button>
-                <button class="btn btn-primary me-2" onclick="exportToExcel()">
-                    <i class="bi bi-file-earmark-excel me-2"></i>Export Excel
-                </button>
-            </div>
-        </nav>
 
-        <!-- Election Selector -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body">
+<body>
+    <div id="sidebar-placeholder"></div>
+
+    <div class="admin-main-content">
+
+        <div class="page-header d-flex justify-content-between align-items-center">
+            <div>
+                <h4 class="fw-bold mb-1">Kelola Kode Akses</h4>
+                <p class="text-muted small mb-0">Manajemen kode voting untuk Pemilih</p>
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-success rounded-pill px-4 shadow-sm fw-bold" onclick="showGenerateModal()">
+                    <i class="bi bi-plus-circle-fill me-2"></i>Generate Kode
+                </button>
+                <button class="btn btn-primary rounded-pill px-4 shadow-sm fw-bold" onclick="exportToExcel()">
+                    <i class="bi bi-file-earmark-excel-fill me-2"></i>Export Excel
+                </button>
+            </div>
+        </div>
+
+        <div class="card border-0 mb-4">
+            <div class="card-body p-4">
                 <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <label class="form-label fw-bold mb-2">Pilih Pemilihan</label>
-                        <select class="form-select" id="electionSelector" onchange="loadAccessCodes()">
+                    <div class="col-md-7">
+                        <label class="form-label fw-bold text-muted small mb-2 uppercase">PILIH SESI PEMILIHAN</label>
+                        <select class="form-select search-box fw-semibold" id="electionSelector"
+                            onchange="loadAccessCodes()">
                             <option value="">Memuat pemilihan...</option>
                         </select>
-                        <div class="mt-2" id="electionInfo">
-                            <small class="text-muted">
-                                <i class="bi bi-info-circle me-1"></i>
-                                <span id="electionDetails">Pilih pemilihan untuk melihat kode akses</span>
-                            </small>
+                        <div class="mt-3" id="electionInfo">
+                            <span id="electionDetails" class="text-muted small"><i
+                                    class="bi bi-info-circle me-1"></i>Pilih pemilihan untuk melihat data</span>
                         </div>
                     </div>
-                    <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <div class="col-md-5 text-md-end mt-3 mt-md-0 border-start ps-4">
                         <div class="mb-2">
-                            <span class="badge bg-primary px-3 py-2">Total: <span id="totalCodes">0</span></span>
+                            <span class="text-muted small">Total Kode Akses:</span>
+                            <h3 class="fw-bold text-primary mb-0" id="totalCodes">0</h3>
                         </div>
-                        <div>
-                            <span class="badge bg-success px-2 py-1 me-1">Anggota: <span id="memberCount">0</span></span>
-                            <span class="badge bg-secondary px-2 py-1 me-1">Alumni: <span id="alumniCount">0</span></span>
-                            <span class="badge bg-info px-2 py-1">Delegasi: <span id="delegasiCount">0</span></span>
+                        <div class="d-flex justify-content-md-end flex-wrap gap-2">
+                            <span
+                                class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2">Anggota:
+                                <span id="memberCount">0</span></span>
+                            <span
+                                class="badge bg-secondary-subtle text-secondary border border-secondary-subtle px-3 py-2">Alumni:
+                                <span id="alumniCount">0</span></span>
+                            <span class="badge bg-info-subtle text-info border border-info-subtle px-3 py-2">Delegasi:
+                                <span id="delegasiCount">0</span></span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Search -->
-        <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body">
-                <input type="text" class="form-control search-box" id="searchInput" 
-                       placeholder="Cari berdasarkan kode, nama, atau identitas..." onkeyup="filterCodes()">
+        <div class="mb-4">
+            <div class="position-relative">
+                <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted"></i>
+                <input type="text" class="form-control search-box ps-5" id="searchInput"
+                    placeholder="Cari berdasarkan kode, nama, atau identitas pemilih..." onkeyup="filterCodes()">
             </div>
         </div>
 
-        <!-- Tabs -->
-        <ul class="nav nav-tabs mb-4">
+        <ul class="nav nav-tabs mb-4 bg-white p-2 rounded-4 shadow-sm" id="pills-tab">
             <li class="nav-item">
                 <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-all">
                     Semua (<span id="allTabCount">0</span>)
@@ -104,94 +190,28 @@
             </li>
         </ul>
 
-        <!-- Tab Content -->
-        <div class="tab-content">
+        <div class="tab-content pb-5">
             <div class="tab-pane fade show active" id="tab-all">
-                <div id="allTable">
-                    <div class="text-center py-5">
-                        <div class="spinner-border text-primary" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-3 text-muted">Memuat data...</p>
-                    </div>
-                </div>
+                <div id="allTable"></div>
             </div>
             <div class="tab-pane fade" id="tab-member">
-                <div id="memberTable">Loading...</div>
+                <div id="memberTable"></div>
             </div>
             <div class="tab-pane fade" id="tab-alumni">
-                <div id="alumniTable">Loading...</div>
+                <div id="alumniTable"></div>
             </div>
             <div class="tab-pane fade" id="tab-delegasi">
-                <div id="delegasiTable">Loading...</div>
+                <div id="delegasiTable"></div>
             </div>
         </div>
     </div>
 
-    <!-- Generate Modal -->
-    <div class="modal fade" id="generateModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Generate Kode Akses</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Pilih Tipe User</label>
-                        <select class="form-select" id="userTypeSelect" onchange="toggleInputFields()">
-                            <option value="">-- Pilih Tipe --</option>
-                            <option value="anggota">Anggota (Member Aktif)</option>
-                            <option value="alumni">Alumni</option>
-                            <option value="delegasi">Delegasi</option>
-                        </select>
-                    </div>
-
-                    <!-- For Delegasi Manual Input -->
-                    <div id="delegasiInputs" style="display: none;">
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle me-2"></i>
-                            Input manual untuk delegasi (satu per satu)
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Nama Lengkap</label>
-                            <input type="text" class="form-control" id="delegasiName" placeholder="Nama lengkap delegasi">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">NIM (Opsional)</label>
-                            <input type="text" class="form-control" id="delegasiNim" placeholder="NIM jika ada">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Asal Instansi</label>
-                            <input type="text" class="form-control" id="delegasiInstansi" placeholder="Nama instansi/organisasi" required>
-                        </div>
-                    </div>
-
-                    <!-- Info for Anggota/Alumni -->
-                    <div id="autoGenerateInfo" style="display: none;">
-                        <div class="alert alert-success">
-                            <i class="bi bi-check-circle me-2"></i>
-                            Kode akan digenerate otomatis untuk semua <span id="userTypeLabel"></span> dari database
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="button" class="btn btn-success" onclick="generateCodes()">
-                        <i class="bi bi-lightning-fill me-2"></i>Generate
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
+    <div class="modal fade" id="generateModal" tabindex="-1">...</div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="../../js/config/supabase-config.js"></script>
-    <script src="../../js/auth/auth-helper.js"></script>
-    <script src="../../js/auth/admin-guard.js"></script>
-
     <script>
         let allCodes = [];
         let filteredCodes = [];
@@ -217,15 +237,15 @@
                 console.log('✅ Elections loaded:', elections);
 
                 if (!elections || elections.length === 0) {
-                    document.getElementById('electionSelector').innerHTML = 
+                    document.getElementById('electionSelector').innerHTML =
                         '<option value="">Belum ada pemilihan</option>';
                     document.getElementById('allTable').innerHTML = `
-                        <div class="alert alert-warning">
-                            <i class="bi bi-exclamation-triangle me-2"></i>
-                            Belum ada pemilihan yang dibuat. 
-                            <a href="admin-create-election.html" class="alert-link">Buat pemilihan baru</a>
-                        </div>
-                    `;
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    Belum ada pemilihan yang dibuat. 
+                    <a href="admin-create-election.html" class="alert-link">Buat pemilihan baru</a>
+                </div>
+            `;
                     return;
                 }
 
@@ -242,17 +262,17 @@
                         month: 'short',
                         year: 'numeric'
                     });
-                    
+
                     return `<option value="${e.id}" ${e.is_active ? 'selected' : ''}>
-                        ${e.title} (${status}) - ${startDate} s/d ${endDate}
-                    </option>`;
+                ${e.title} (${status}) - ${startDate} s/d ${endDate}
+            </option>`;
                 }).join('');
 
                 // Pilih election yang aktif atau yang pertama
                 const activeElection = elections.find(e => e.is_active);
                 selectedElectionId = activeElection ? activeElection.id : elections[0].id;
                 currentElection = elections.find(e => e.id === selectedElectionId);
-                
+
                 console.log('📌 Selected election:', currentElection);
 
                 // Load access codes untuk election terpilih
@@ -262,17 +282,17 @@
                 console.error('❌ Error loading page:', error);
                 alert('Gagal memuat halaman: ' + error.message);
                 document.getElementById('allTable').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="bi bi-x-circle me-2"></i>
-                        Error: ${error.message}
-                    </div>
-                `;
+            <div class="alert alert-danger">
+                <i class="bi bi-x-circle me-2"></i>
+                Error: ${error.message}
+            </div>
+        `;
             }
         }
 
         async function loadAccessCodes() {
             selectedElectionId = document.getElementById('electionSelector').value;
-            
+
             if (!selectedElectionId) {
                 console.warn('⚠️ No election selected');
                 return;
@@ -292,7 +312,7 @@
                     console.error('❌ Error loading election:', electionError);
                     throw electionError;
                 }
-                
+
                 currentElection = election;
                 console.log('✅ Election loaded:', election);
 
@@ -310,8 +330,50 @@
 
                 console.log('✅ Access codes loaded:', codes);
 
+                // PERBAIKAN: Check status voting berdasarkan voter_identifier atau voter_id
+                const { data: votes, error: votesError } = await supabaseClient
+                    .from('votes')
+                    .select('voter_identifier, voter_id, voted_at')
+                    .eq('election_id', selectedElectionId);
+
+                if (votesError) {
+                    console.error('❌ Error loading votes:', votesError);
+                }
+
+                console.log('✅ Votes loaded:', votes);
+
+                // Set is_used berdasarkan data votes
+                if (votes && votes.length > 0 && codes) {
+                    codes.forEach(code => {
+                        // Cek apakah voter_identifier atau user_id ada di daftar votes
+                        const voteRecord = votes.find(v => {
+                            // Cek berdasarkan voter_identifier (NIM untuk anggota)
+                            if (v.voter_identifier && code.voter_identifier) {
+                                return v.voter_identifier === code.voter_identifier;
+                            }
+                            // Atau cek berdasarkan voter_id jika ada user_id di access_codes
+                            if (v.voter_id && code.user_id) {
+                                return v.voter_id === code.user_id;
+                            }
+                            return false;
+                        });
+
+                        if (voteRecord) {
+                            code.is_used = true;
+                            code.voted_at = voteRecord.voted_at;
+                            console.log(`✅ Code ${code.code} marked as used`);
+                        } else {
+                            code.is_used = false;
+                            code.voted_at = null;
+                        }
+                    });
+                }
+
                 allCodes = codes || [];
                 filteredCodes = allCodes;
+
+                console.log('📊 Total codes:', allCodes.length);
+                console.log('📊 Used codes:', allCodes.filter(c => c.is_used).length);
 
                 updateStatistics();
                 displayTables();
@@ -319,13 +381,13 @@
             } catch (error) {
                 console.error('❌ Error loading access codes:', error);
                 alert('Gagal memuat kode akses: ' + error.message);
-                
+
                 document.getElementById('allTable').innerHTML = `
-                    <div class="alert alert-danger">
-                        <i class="bi bi-x-circle me-2"></i>
-                        Error: ${error.message}
-                    </div>
-                `;
+            <div class="alert alert-danger">
+                <i class="bi bi-x-circle me-2"></i>
+                Error: ${error.message}
+            </div>
+        `;
             }
         }
 
@@ -352,11 +414,11 @@
                 if (currentElection.allow_delegasi) allowedTypes.push('Delegasi');
 
                 document.getElementById('electionDetails').innerHTML = `
-                    Tipe yang diizinkan: <strong>${allowedTypes.join(', ') || 'Tidak ada'}</strong> | 
-                    Status: <span class="badge bg-${currentElection.is_active ? 'success' : 'secondary'} badge-sm">
-                        ${currentElection.is_active ? 'Aktif' : 'Tidak Aktif'}
-                    </span>
-                `;
+            Tipe yang diizinkan: <strong>${allowedTypes.join(', ') || 'Tidak ada'}</strong> | 
+            Status: <span class="badge bg-${currentElection.is_active ? 'success' : 'secondary'} badge-sm">
+                ${currentElection.is_active ? 'Aktif' : 'Tidak Aktif'}
+            </span>
+        `;
             }
         }
 
@@ -374,11 +436,11 @@
         function renderTable(codes) {
             if (codes.length === 0) {
                 return `
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle me-2"></i>
-                        Tidak ada kode untuk ditampilkan. Klik tombol "Generate Kode" untuk membuat kode akses baru.
-                    </div>
-                `;
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle me-2"></i>
+                Tidak ada kode untuk ditampilkan. Klik tombol "Generate Kode" untuk membuat kode akses baru.
+            </div>
+        `;
             }
 
             const rows = codes.map(c => {
@@ -390,82 +452,83 @@
                 }
 
                 const userType = c.user_type || c.role_type || 'unknown';
-                
+
                 return `
-                    <tr class="${c.is_used ? 'table-light' : ''}">
-                        <td>
-                            <code class="code-badge bg-primary bg-opacity-10 text-primary rounded">${c.code}</code>
-                            <button class="btn btn-sm btn-link" onclick="copyCode('${c.code}')" title="Copy kode">
-                                <i class="bi bi-clipboard"></i>
-                            </button>
-                        </td>
-                        <td>
-                            <div class="fw-bold">${c.voter_name || '-'}</div>
-                            <small class="text-muted">${c.voter_identifier || '-'}</small>
-                        </td>
-                        <td>
-                            <span class="badge bg-${userType === 'anggota' ? 'success' : userType === 'alumni' ? 'secondary' : 'info'}">
-                                ${userType.charAt(0).toUpperCase() + userType.slice(1)}
-                            </span>
-                        </td>
-                        <td>
-                            ${userType === 'delegasi' 
-                                ? (c.is_verified 
-                                    ? '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Verified</span>'
-                                    : '<span class="badge bg-warning"><i class="bi bi-clock"></i> Pending</span>')
-                                : '-'
-                            }
-                        </td>
-                        <td>
-                            ${c.is_used 
-                                ? `<span class="badge bg-success">Terpakai</span><br>
-                                   <small class="text-muted">${formatDateTime(c.voted_at)}</small>` 
-                                : '<span class="badge bg-secondary">Belum Terpakai</span>'}
-                        </td>
-                        <td>
-                            ${metadata.instansi ? `<small>${metadata.instansi}</small>` : 
-                              metadata.generasi ? `<small>Gen ${metadata.generasi}</small>` : '-'}
-                        </td>
-                        <td>
-                            <button class="btn btn-sm btn-danger" onclick="deleteCode('${c.id}')" title="Hapus kode">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
+            <tr class="${c.is_used ? 'table-light' : ''}">
+                <td>
+                    <code class="code-badge bg-primary bg-opacity-10 text-primary rounded">${c.code}</code>
+                    <button class="btn btn-sm btn-link" onclick="copyCode('${c.code}')" title="Copy kode">
+                        <i class="bi bi-clipboard"></i>
+                    </button>
+                </td>
+                <td>
+                    <div class="fw-bold">${c.voter_name || '-'}</div>
+                    <small class="text-muted">${c.voter_identifier || '-'}</small>
+                </td>
+                <td>
+                    <span class="badge bg-${userType === 'anggota' ? 'success' : userType === 'alumni' ? 'secondary' : 'info'}">
+                        ${userType.charAt(0).toUpperCase() + userType.slice(1)}
+                    </span>
+                </td>
+                <td>
+                    ${userType === 'delegasi'
+                        ? (c.is_verified
+                            ? '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Verified</span>'
+                            : '<span class="badge bg-warning"><i class="bi bi-clock"></i> Pending</span>')
+                        : '-'
+                    }
+                </td>
+                <td>
+                    ${c.is_used
+                        ? `<span class="badge bg-success"><i class="bi bi-check-circle-fill"></i> Sudah Vote</span><br>
+                           <small class="text-muted">${formatDateTime(c.voted_at)}</small>`
+                        : '<span class="badge bg-secondary"><i class="bi bi-hourglass"></i> Belum Vote</span>'}
+                </td>
+                <td>
+                    ${metadata.instansi ? `<small>${metadata.instansi}</small>` :
+                        metadata.generasi ? `<small>Gen ${metadata.generasi}</small>` : '-'}
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger" onclick="deleteCode('${c.id}')" 
+                        ${c.is_used ? 'disabled title="Tidak bisa hapus kode yang sudah digunakan"' : 'title="Hapus kode"'}>
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `;
             }).join('');
 
             return `
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover align-middle">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Kode Akses</th>
-                                        <th>Nama & Identitas</th>
-                                        <th>Tipe</th>
-                                        <th>Verifikasi</th>
-                                        <th>Status</th>
-                                        <th>Info</th>
-                                        <th>Aksi</th>
-                                    </tr>
-                                </thead>
-                                <tbody>${rows}</tbody>
-                            </table>
-                        </div>
-                    </div>
+        <div class="card border-0 shadow-sm">
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Kode Akses</th>
+                                <th>Nama & Identitas</th>
+                                <th>Tipe</th>
+                                <th>Verifikasi</th>
+                                <th>Status</th>
+                                <th>Info</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>${rows}</tbody>
+                    </table>
                 </div>
-            `;
+            </div>
+        </div>
+    `;
         }
 
         function filterCodes() {
             const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            
+
             if (!searchTerm) {
                 filteredCodes = allCodes;
             } else {
-                filteredCodes = allCodes.filter(c => 
+                filteredCodes = allCodes.filter(c =>
                     (c.code && c.code.toLowerCase().includes(searchTerm)) ||
                     (c.voter_name && c.voter_name.toLowerCase().includes(searchTerm)) ||
                     (c.voter_identifier && c.voter_identifier.toLowerCase().includes(searchTerm))
@@ -484,7 +547,7 @@
             // Update dropdown options based on election settings
             const userTypeSelect = document.getElementById('userTypeSelect');
             let options = '<option value="">-- Pilih Tipe --</option>';
-            
+
             if (currentElection.allow_anggota) {
                 options += '<option value="anggota">Anggota (Member Aktif)</option>';
             }
@@ -530,7 +593,7 @@
 
         async function generateCodes() {
             const userType = document.getElementById('userTypeSelect').value;
-            
+
             if (!userType) {
                 alert('Pilih tipe user terlebih dahulu!');
                 return;
@@ -563,6 +626,7 @@
                         voter_identifier: m.nim,
                         user_type: 'anggota',
                         role_type: 'anggota',
+                        user_id: m.user_id,
                         is_used: false,
                         is_active: true
                     }));
@@ -570,7 +634,7 @@
                 } else if (userType === 'alumni') {
                     const { data: alumni, error } = await supabaseClient
                         .from('alumni')
-                        .select('nama_lengkap, generasi, divisi, jabatan, user_id');
+                        .select('nama_lengkap, generasi, angkatan, jabatan, user_id');
 
                     if (error) throw error;
 
@@ -583,12 +647,13 @@
                         election_id: selectedElectionId,
                         code: `ALUMNI-${a.generasi}-${generateShortCode()}`,
                         voter_name: a.nama_lengkap,
-                        voter_identifier: `Gen ${a.generasi} (${a.angkatan || 'N/A'})`,
+                        voter_identifier: `Gen ${a.generasi}`,
                         user_type: 'alumni',
                         role_type: 'alumni',
-                        voter_metadata: JSON.stringify({ 
-                            generasi: a.generasi, 
-                            tahun_lulus: a.tahun_lulus,
+                        user_id: a.user_id,
+                        voter_metadata: JSON.stringify({
+                            generasi: a.generasi,
+                            angkatan: a.angkatan,
                             jabatan: a.jabatan
                         }),
                         is_used: false,
@@ -624,17 +689,20 @@
                     return;
                 }
 
+                console.log('📤 Inserting codes:', codes);
+
                 const { error: insertError } = await supabaseClient
                     .from('access_codes')
                     .insert(codes);
 
                 if (insertError) throw insertError;
 
-                alert(`Berhasil generate ${codes.length} kode akses untuk ${userType}!`);
-                
+                showToast(`Berhasil generate ${codes.length} kode akses untuk ${userType}!`);
+
                 bootstrap.Modal.getInstance(document.getElementById('generateModal')).hide();
                 loadAccessCodes();
 
+                // Reset form
                 document.getElementById('userTypeSelect').value = '';
                 document.getElementById('delegasiName').value = '';
                 document.getElementById('delegasiNim').value = '';
@@ -642,7 +710,7 @@
                 toggleInputFields();
 
             } catch (error) {
-                console.error('Error generating codes:', error);
+                console.error('❌ Error generating codes:', error);
                 alert('Gagal generate kode: ' + error.message);
             }
         }
@@ -682,7 +750,7 @@
                 loadAccessCodes();
 
             } catch (error) {
-                console.error('Error deleting code:', error);
+                console.error('❌ Error deleting code:', error);
                 alert('Gagal menghapus kode: ' + error.message);
             }
         }
@@ -703,7 +771,7 @@
                 let metadata = {};
                 try {
                     metadata = c.voter_metadata ? JSON.parse(c.voter_metadata) : {};
-                } catch (e) {}
+                } catch (e) { }
 
                 return {
                     'Kode Akses': c.code,
@@ -711,17 +779,19 @@
                     'Identitas': c.voter_identifier || '-',
                     'Tipe': c.user_type || c.role_type || '-',
                     'Info Tambahan': metadata.instansi || (metadata.generasi ? `Gen ${metadata.generasi}` : '-'),
-                    'Status': c.is_used ? 'Terpakai' : 'Belum',
-                    'Waktu Voting': c.voted_at || '-'
+                    'Status': c.is_used ? 'Sudah Vote' : 'Belum Vote',
+                    'Waktu Voting': c.voted_at ? formatDateTime(c.voted_at) : '-'
                 };
             });
 
             const ws = XLSX.utils.json_to_sheet(excelData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Access Codes');
-            XLSX.writeFile(wb, `access-codes-${new Date().toISOString().split('T')[0]}.xlsx`);
 
-            showToast('Data berhasil diekspor!');
+            const filename = `access-codes-${currentElection ? currentElection.title.replace(/\s+/g, '-') : 'export'}-${new Date().toISOString().split('T')[0]}.xlsx`;
+            XLSX.writeFile(wb, filename);
+
+            showToast('Data berhasil diekspor ke Excel!');
         }
 
         function formatDateTime(dateString) {
@@ -746,7 +816,24 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
+        // Event Listeners
         window.addEventListener('load', loadPage);
+
+        // Load sidebar
+        fetch('include/sidebar.html')
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById('sidebar-placeholder').innerHTML = data;
+                // Logika aktifkan menu
+                const currentPath = window.location.pathname.split('/').pop();
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    if (link.getAttribute('href') === currentPath) {
+                        link.classList.add('active');
+                    }
+                });
+            })
+            .catch(err => console.error('Error loading sidebar:', err));
     </script>
 </body>
+
 </html>

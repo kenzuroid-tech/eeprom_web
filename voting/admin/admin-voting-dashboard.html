@@ -293,33 +293,7 @@
         </div>
     </div>
 
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <img src="/images/eeprom_logo.png" alt="EEPROM Logo">
-            <h5>EEPROM ADMIN</h5>
-        </div>
-        <nav class="nav flex-column">
-            <a class="nav-link active" href="admin-voting-dashboard.html">
-                <i class="bi bi-grid-1x2-fill"></i> Dashboard
-            </a>
-            <a class="nav-link" href="admin-create-election.html">
-                <i class="bi bi-plus-circle-fill"></i> Buat Pemilihan
-            </a>
-            <a class="nav-link" href="admin-candidates.html">
-                <i class="bi bi-people-fill"></i> Kelola Kandidat
-            </a>
-            <a class="nav-link" href="admin-access-codes.html">
-                <i class="bi bi-shield-lock-fill"></i> Kode Akses
-            </a>
-            <a class="nav-link" href="admin-results.html">
-                <i class="bi bi-graph-up-arrow"></i> Hasil Voting
-            </a>
-            <hr class="mx-3 opacity-25">
-            <a class="nav-link text-danger mt-auto" href="#" onclick="adminLogout()">
-                <i class="bi bi-power"></i> Logout
-            </a>
-        </nav>
-    </div>
+    <div id="sidebar-placeholder"></div>
 
     <div class="main-content">
         <div class="top-header">
@@ -539,30 +513,47 @@
         }
 
         // ============================================
-        // MAIN LOAD DASHBOARD FUNCTION
+        // MAIN LOAD DASHBOARD FUNCTION - VERSI PERBAIKAN LENGKAP
         // ============================================
         async function loadDashboard() {
             console.log('🔄 Loading dashboard...');
 
             // Set Admin Info
             const adminName = localStorage.getItem('adminName') || 'Administrator';
-            document.getElementById('adminInfo').textContent = adminName;
+            const adminInfoElement = document.getElementById('adminInfo');
+            if (adminInfoElement) {
+                adminInfoElement.textContent = adminName;
+            }
 
             try {
-                // Get active election
-                const { data: election, error: electionError } = await supabaseClient
+                showLoading();
+
+                console.log('📡 Attempting to fetch elections...');
+
+                // Get active election dengan error handling yang lebih baik
+                const { data: elections, error: electionError } = await supabaseClient
                     .from('elections')
                     .select('*')
                     .eq('is_active', true)
                     .order('created_at', { ascending: false })
-                    .limit(1)
-                    .maybeSingle();
+                    .limit(1);
 
+                console.log('📊 Response:', { elections, electionError });
+
+                // Handle error
                 if (electionError) {
-                    console.error('Error fetching election:', electionError);
+                    console.error('❌ Supabase Error:', electionError);
+                    document.getElementById('noElection').style.display = 'block';
+                    document.getElementById('electionInfo').style.display = 'none';
+                    hideLoading();
+
+                    // Jangan alert berulang, cukup log
+                    console.error('Database error:', electionError.message);
+                    return;
                 }
 
-                if (!election) {
+                // Check if elections exist and is an array
+                if (!elections || !Array.isArray(elections) || elections.length === 0) {
                     console.log('❌ Tidak ada pemilihan aktif');
                     document.getElementById('noElection').style.display = 'block';
                     document.getElementById('electionInfo').style.display = 'none';
@@ -570,6 +561,8 @@
                     return;
                 }
 
+                // Get first election
+                const election = elections[0];
                 activeElection = election;
                 console.log('✅ Pemilihan aktif ditemukan:', election);
 
@@ -577,12 +570,20 @@
                 document.getElementById('noElection').style.display = 'none';
                 document.getElementById('electionInfo').style.display = 'block';
 
-                // Display election info
-                document.getElementById('electionTitle').textContent = election.title;
-                document.getElementById('electionDates').innerHTML = `
-                    <i class="bi bi-calendar-event me-1"></i>
-                    ${formatDate(election.start_date)} - ${formatDate(election.end_date)}
-                `;
+                // Display election info safely
+                const electionTitleEl = document.getElementById('electionTitle');
+                const electionDatesEl = document.getElementById('electionDates');
+
+                if (electionTitleEl) {
+                    electionTitleEl.textContent = election.title || 'Pemilihan';
+                }
+
+                if (electionDatesEl) {
+                    electionDatesEl.innerHTML = `
+                <i class="bi bi-calendar-event me-1"></i>
+                ${formatDate(election.start_date)} - ${formatDate(election.end_date)}
+            `;
+                }
 
                 // Load results
                 await loadResults(election.id);
@@ -590,11 +591,29 @@
                 hideLoading();
 
             } catch (error) {
-                console.error('❌ Error loading dashboard:', error);
-                alert('Gagal memuat dashboard: ' + error.message);
+                console.error('❌ Critical Error:', error);
+
+                // Show no election state instead of alert loop
+                document.getElementById('noElection').style.display = 'block';
+                document.getElementById('electionInfo').style.display = 'none';
                 hideLoading();
+
+                // Log error tapi jangan alert
+                console.error('Failed to load dashboard:', error.message);
             }
         }
+
+        // ============================================
+        // DISABLE AUTO-REFRESH SEMENTARA - TAMBAHKAN INI
+        // ============================================
+        // COMMENT OUT auto refresh dulu untuk testing
+        /*
+        setInterval(() => {
+            if (activeElection) {
+                loadDashboard();
+            }
+        }, 30000);
+        */
 
         // ============================================
         // LOAD RESULTS FUNCTION
@@ -643,8 +662,8 @@
                 console.log('📊 Candidates with votes:', candidatesWithVotes);
 
                 // 4. Calculate participation rate
-                const participationRate = totalMembers > 0 
-                    ? ((totalVotes / totalMembers) * 100).toFixed(1) 
+                const participationRate = totalMembers > 0
+                    ? ((totalVotes / totalMembers) * 100).toFixed(1)
                     : 0;
 
                 // 5. Update UI
@@ -683,8 +702,8 @@
             }
 
             const chartHtml = candidates.map((candidate, index) => {
-                const percent = totalVotes > 0 
-                    ? ((candidate.voteCount / totalVotes) * 100).toFixed(1) 
+                const percent = totalVotes > 0
+                    ? ((candidate.voteCount / totalVotes) * 100).toFixed(1)
                     : 0;
                 const colorClass = colors[index % colors.length];
 
@@ -904,6 +923,17 @@
                 loadDashboard();
             }
         }, 30000);
+
+        fetch('include/sidebar.html')
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById('sidebar-placeholder').innerHTML = data;
+                // Logika aktifkan menu
+                const currentPath = window.location.pathname.split('/').pop();
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    if (link.getAttribute('href') === currentPath) link.classList.add('active');
+                });
+            });
     </script>
 </body>
 

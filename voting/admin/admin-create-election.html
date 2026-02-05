@@ -25,48 +25,6 @@
             margin: 0;
         }
 
-        /* SIDEBAR (Konsisten dengan Dashboard) */
-        .sidebar {
-            width: var(--sidebar-width);
-            height: 100vh;
-            position: fixed;
-            background-color: var(--sidebar-blue);
-            color: white;
-            padding: 20px 15px;
-            z-index: 1000;
-        }
-
-        .sidebar-header {
-            text-align: center;
-            padding-bottom: 30px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            margin-bottom: 20px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.7);
-            text-decoration: none;
-            border-radius: 12px;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            transition: 0.3s;
-        }
-
-        .nav-item i {
-            margin-right: 15px;
-            font-size: 1.1rem;
-        }
-
-        .nav-item:hover,
-        .nav-item.active {
-            background-color: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-left: 4px solid var(--accent-orange);
-        }
-
         /* MAIN CONTENT */
         .main-content {
             margin-left: var(--sidebar-width);
@@ -164,29 +122,8 @@
 </head>
 
 <body>
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <img src="/images/eeprom_logo.png" alt="EEPROM Logo" width="50">
-            <h5 class="mt-2">EEPROM ADMIN</h5>
-        </div>
-        <nav class="nav flex-column">
-            <a class="nav-link nav-item" href="admin-voting-dashboard.html">
-                <i class="bi bi-grid-1x2-fill"></i> Dashboard
-            </a>
-            <a class="nav-link nav-item active" href="admin-create-election.html">
-                <i class="bi bi-plus-circle-fill"></i> Buat Pemilihan
-            </a>
-            <a class="nav-link nav-item" href="admin-candidates.html">
-                <i class="bi bi-people-fill"></i> Kelola Kandidat
-            </a>
-            <a class="nav-link nav-item" href="admin-access-codes.html">
-                <i class="bi bi-shield-lock-fill"></i> Kode Akses
-            </a>
-            <a class="nav-link nav-item" href="admin-results.html">
-                <i class="bi bi-graph-up-arrow"></i> Hasil Voting
-            </a>
-        </nav>
-    </div>
+    <div id="sidebar-placeholder"></div>
+
 
     <div class="main-content">
         <div class="top-header">
@@ -481,6 +418,17 @@
                 }
             });
         });
+
+        fetch('include/sidebar.html')
+            .then(res => res.text())
+            .then(data => {
+                document.getElementById('sidebar-placeholder').innerHTML = data;
+                // Logika aktifkan menu
+                const currentPath = window.location.pathname.split('/').pop();
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    if (link.getAttribute('href') === currentPath) link.classList.add('active');
+                });
+            });
     </script>
 </body>
 
