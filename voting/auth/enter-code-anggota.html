@@ -363,58 +363,41 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Logic remains exactly the same as original
         window.addEventListener('DOMContentLoaded', async function () {
             console.log('🔄 Loading enter code page for anggota...');
 
-            const session = localStorage.getItem('userSession');
+            // Baca dari localStorage (SAMA SEPERTI ALUMNI)
+            const namaLengkap = localStorage.getItem('namaLengkap');
+            const nim = localStorage.getItem('nim');
+            const divisi = localStorage.getItem('divisi');
+            const jabatan = localStorage.getItem('jabatan');
+            const electionId = localStorage.getItem('electionId');
 
-            if (!session) {
-                console.error('❌ No session found');
-                showAlert('Sesi tidak ditemukan. Silakan login kembali.', 'danger');
+            console.log('📦 Data from localStorage:', { namaLengkap, nim, divisi, jabatan, electionId });
+
+            if (!namaLengkap || !nim) {
+                console.error('❌ Data tidak lengkap');
+                showAlert('Data anggota tidak ditemukan. Silakan login kembali.', 'danger');
                 setTimeout(() => {
                     window.location.href = 'login-anggota.html';
                 }, 2000);
                 return;
             }
 
-            let sessionData;
-            try {
-                sessionData = JSON.parse(session);
-            } catch (e) {
-                console.error('❌ Invalid session data');
-                showAlert('Data sesi tidak valid. Silakan login kembali.', 'danger');
-                setTimeout(() => {
-                    window.location.href = 'login-anggota.html';
-                }, 2000);
-                return;
-            }
+            console.log('✅ Data loaded successfully');
 
-            if (!sessionData.namaLengkap || !sessionData.nim) {
-                console.error('❌ Incomplete session data');
-                showAlert('Data anggota tidak lengkap. Silakan login kembali.', 'danger');
-                setTimeout(() => {
-                    window.location.href = 'login-anggota.html';
-                }, 2000);
-                return;
-            }
+            // Display member info
+            document.getElementById('memberName').textContent = namaLengkap;
+            document.getElementById('memberNim').textContent = nim;
+            document.getElementById('memberDivisi').textContent = divisi || '-';
+            document.getElementById('memberJabatan').textContent = jabatan || 'Anggota';
 
-            console.log('✅ Session data loaded:', sessionData);
-
-            document.getElementById('memberName').textContent = sessionData.namaLengkap;
-            document.getElementById('memberNim').textContent = sessionData.nim;
-            document.getElementById('memberDivisi').textContent = sessionData.divisi || '-';
-            document.getElementById('memberJabatan').textContent = sessionData.jabatan || 'Anggota';
-
-            await loadAccessCode(sessionData);
+            await loadAccessCode(nim, electionId);
         });
 
-        async function loadAccessCode(sessionData) {
+        async function loadAccessCode(nim, electionId) {
             try {
                 console.log('📊 Loading access code from database...');
-
-                const memberNim = sessionData.nim;
-                const electionId = sessionData.electionId;
 
                 if (!electionId) {
                     throw new Error('ID pemilihan tidak ditemukan');
@@ -424,7 +407,7 @@
                     .from('access_codes')
                     .select('*')
                     .eq('election_id', electionId)
-                    .eq('voter_identifier', memberNim)
+                    .eq('voter_identifier', nim)
                     .in('user_type', ['anggota'])
                     .eq('is_active', true)
                     .maybeSingle();
@@ -441,16 +424,16 @@
                         console.warn('⚠️ Code already used!');
                         showAlert('Kode akses Anda sudah pernah digunakan untuk voting!', 'danger');
                         document.getElementById('displayCode').innerHTML = `
-                    <span style="color: #ef4444;">KODE SUDAH DIGUNAKAN</span>
-                `;
+                        <span style="color: #ef4444;">KODE SUDAH DIGUNAKAN</span>
+                    `;
                         document.getElementById('verifyBtn').disabled = true;
                         document.getElementById('accessCodeInput').disabled = true;
                         return;
                     }
 
                     document.getElementById('displayCode').textContent = codeData.code;
-                    localStorage.setItem('currentAccessCode', codeData.code);
-                    localStorage.setItem('currentAccessCodeId', codeData.id);
+                    localStorage.setItem('accessCode', codeData.code);
+                    localStorage.setItem('accessCodeId', codeData.id);
 
                 } else {
                     console.warn('⚠️ No access code found for this member');
@@ -470,6 +453,7 @@
             }
         }
 
+        // Copy code functionality
         document.getElementById('codeDisplay').addEventListener('click', function () {
             const codeElement = document.getElementById('displayCode');
             const code = codeElement.textContent.trim();
@@ -488,21 +472,25 @@
             }).catch(() => showAlert('Gagal menyalin kode', 'warning'));
         });
 
+        // Auto uppercase input
         document.getElementById('accessCodeInput').addEventListener('input', function () {
             this.value = this.value.toUpperCase();
         });
 
+        // Verify code form
         document.getElementById('verifyCodeForm').addEventListener('submit', async function (e) {
             e.preventDefault();
+
             const inputCode = document.getElementById('accessCodeInput').value.trim().toUpperCase();
-            const savedCode = localStorage.getItem('currentAccessCode');
-            const savedCodeId = localStorage.getItem('currentAccessCodeId');
+            const savedCode = localStorage.getItem('accessCode');
+            const savedCodeId = localStorage.getItem('accessCodeId');
             const verifyBtn = document.getElementById('verifyBtn');
 
             if (!inputCode) {
                 showAlert('Mohon masukkan kode akses!', 'warning');
                 return;
             }
+
             if (!savedCode) {
                 showAlert('Kode akses tidak ditemukan. Silakan muat ulang.', 'danger');
                 return;
@@ -530,11 +518,8 @@
                     if (!codeCheck.is_active) throw new Error('Kode akses sudah tidak aktif!');
                 }
 
-                const session = JSON.parse(localStorage.getItem('userSession'));
-                session.codeVerified = true;
-                session.accessCodeId = savedCodeId;
-                session.accessCode = savedCode;
-                localStorage.setItem('userSession', JSON.stringify(session));
+                // Set verified flag
+                localStorage.setItem('codeVerified', 'true');
 
                 showAlert('✓ Kode berhasil diverifikasi! Mengalihkan...', 'success');
 
@@ -557,13 +542,6 @@
             alertBox.innerHTML = `<i class="bi bi-${iconMap[type]} me-2"></i>${message}`;
             setTimeout(() => { alertBox.style.display = 'none'; }, 5000);
         }
-
-        window.addEventListener('pageshow', function (event) {
-            const session = JSON.parse(localStorage.getItem('userSession') || '{}');
-            if (session.codeVerified) {
-                window.location.href = '../voting/anggota/vote.html';
-            }
-        });
     </script>
 </body>
 

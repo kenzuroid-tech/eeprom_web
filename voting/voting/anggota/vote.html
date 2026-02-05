@@ -730,39 +730,50 @@
         let currentElectionId = null;
         let hasVoted = false;
         let candidatesData = [];
-        let currentSession = null;
+
+        // Session data dari localStorage (SAMA SEPERTI ALUMNI)
+        let voterName = null;
+        let voterNim = null;
+        let voterDivisi = null;
+        let voterJabatan = null;
+        let accessCodeId = null;
+        let codeVerified = false;
 
         window.addEventListener('DOMContentLoaded', async function () {
             console.log('🔄 Loading voting page...');
 
-            // Check session dari localStorage
-            const sessionStr = localStorage.getItem('userSession');
+            // Baca data dari localStorage (SAMA SEPERTI ALUMNI)
+            voterName = localStorage.getItem('namaLengkap');
+            voterNim = localStorage.getItem('nim');
+            voterDivisi = localStorage.getItem('divisi');
+            voterJabatan = localStorage.getItem('jabatan');
+            currentElectionId = localStorage.getItem('electionId');
+            accessCodeId = localStorage.getItem('accessCodeId');
+            codeVerified = localStorage.getItem('codeVerified');
 
-            if (!sessionStr) {
-                console.error('❌ No session found');
-                showAlert('Sesi tidak ditemukan. Silakan login kembali.', 'danger');
+            console.log('📦 Data from localStorage:', {
+                voterName,
+                voterNim,
+                voterDivisi,
+                voterJabatan,
+                currentElectionId,
+                accessCodeId,
+                codeVerified
+            });
+
+            // Validasi data
+            if (!voterName || !voterNim) {
+                console.error('❌ Data tidak lengkap');
+                showAlert('Data anggota tidak ditemukan. Silakan login kembali.', 'danger');
                 setTimeout(() => {
                     window.location.href = '../../auth/login-anggota.html';
                 }, 2000);
                 return;
             }
 
-            try {
-                currentSession = JSON.parse(sessionStr);
-                console.log('✅ Session loaded:', currentSession);
-            } catch (e) {
-                console.error('❌ Invalid session data:', e);
-                showAlert('Data sesi tidak valid. Silakan login kembali.', 'danger');
-                setTimeout(() => {
-                    window.location.href = '../../auth/login-anggota.html';
-                }, 2000);
-                return;
-            }
-
-            // Cek apakah session memiliki data yang diperlukan
-            if (!currentSession.namaLengkap || !currentSession.nim || !currentSession.electionId) {
-                console.error('❌ Incomplete session data');
-                showAlert('Data sesi tidak lengkap. Silakan login kembali.', 'danger');
+            if (!currentElectionId) {
+                console.error('❌ Election ID tidak ditemukan');
+                showAlert('ID pemilihan tidak ditemukan. Silakan login kembali.', 'danger');
                 setTimeout(() => {
                     window.location.href = '../../auth/login-anggota.html';
                 }, 2000);
@@ -770,7 +781,7 @@
             }
 
             // Cek apakah kode sudah diverifikasi
-            if (!currentSession.codeVerified) {
+            if (codeVerified !== 'true') {
                 console.warn('⚠️ Code not verified yet');
                 showAlert('Kode akses belum diverifikasi. Mengalihkan...', 'warning');
                 setTimeout(() => {
@@ -779,17 +790,16 @@
                 return;
             }
 
-            // Display voter info
-            document.getElementById('voterName').textContent = currentSession.namaLengkap;
-            document.getElementById('voterNim').textContent = currentSession.nim;
-            document.getElementById('voterDivisi').textContent = currentSession.divisi || '-';
-            document.getElementById('voterJabatan').textContent = currentSession.jabatan || 'Anggota';
+            console.log('✅ All validations passed');
 
-            // Set current election ID dari session
-            currentElectionId = currentSession.electionId;
+            // Display voter info
+            document.getElementById('voterName').textContent = voterName;
+            document.getElementById('voterNim').textContent = voterNim;
+            document.getElementById('voterDivisi').textContent = voterDivisi || '-';
+            document.getElementById('voterJabatan').textContent = voterJabatan || 'Anggota';
 
             console.log('📌 Current election ID:', currentElectionId);
-            console.log('📌 Voter NIM:', currentSession.nim);
+            console.log('📌 Voter NIM:', voterNim);
 
             // Check voting status dan load candidates
             await checkVotingStatus();
@@ -799,16 +809,14 @@
         // Check voting status
         async function checkVotingStatus() {
             try {
-                const currentNim = currentSession.nim;
-
-                console.log('🔍 Checking voting status for NIM:', currentNim, 'Election:', currentElectionId);
+                console.log('🔍 Checking voting status for NIM:', voterNim, 'Election:', currentElectionId);
 
                 // Check if anggota has voted - using voter_identifier (NIM)
                 const { data: voteData, error: voteError } = await supabaseClient
                     .from('votes')
                     .select('*')
                     .eq('election_id', currentElectionId)
-                    .eq('voter_identifier', currentNim)
+                    .eq('voter_identifier', voterNim)
                     .maybeSingle();
 
                 console.log('📊 Vote check result:', { voteData, voteError });
@@ -940,13 +948,13 @@
         // Format mission text into list
         function formatMission(missionText) {
             if (!missionText) return '';
-            
+
             // Split by newline or numbered pattern
             const lines = missionText.split(/\n|(?=\d+\.)/);
             const items = lines
                 .map(line => line.trim())
                 .filter(line => line.length > 0);
-            
+
             // If already has numbers, render as ordered list
             if (items.some(item => /^\d+\./.test(item))) {
                 const listItems = items.map(item => {
@@ -955,7 +963,7 @@
                 }).join('');
                 return `<ol style="padding-left: 1.5rem; margin-bottom: 0;">${listItems}</ol>`;
             }
-            
+
             // Otherwise render as paragraph with line breaks
             return `<p>${missionText.replace(/\n/g, '<br>')}</p>`;
         }
@@ -1080,16 +1088,14 @@
             document.getElementById('loadingOverlay').style.display = 'flex';
 
             try {
-                const currentNim = currentSession.nim;
                 const ipAddress = await getIPAddress();
                 const userAgent = navigator.userAgent;
-                const accessCodeId = currentSession.accessCodeId;
 
                 console.log('📤 Submitting vote:', {
                     election_id: currentElectionId,
                     candidate_id: selectedCandidateId,
                     voter_role: 'anggota',
-                    voter_identifier: currentNim,
+                    voter_identifier: voterNim,
                     access_code_id: accessCodeId
                 });
 
@@ -1100,7 +1106,7 @@
                         election_id: currentElectionId,
                         candidate_id: selectedCandidateId,
                         voter_role: 'anggota',
-                        voter_identifier: currentNim,
+                        voter_identifier: voterNim,
                         voted_at: new Date().toISOString(),
                         ip_address: ipAddress,
                         user_agent: userAgent
@@ -1212,7 +1218,7 @@
         // Prevent back navigation after voting
         window.addEventListener('pageshow', function (event) {
             if (hasVoted) {
-                window.location.href = 'vote-success.html';
+                window.location.href = 'vote-success-anggota.html';
             }
         });
     </script>

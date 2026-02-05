@@ -150,8 +150,8 @@
                 <p class="text-muted small">Silakan masuk dengan akun aktif Anda</p>
             </div>
 
-            <!-- Alert Box -->
-            <div id="alertBox" style="display: none;"></div>
+            <!-- Alert Box akan muncul di sini -->
+            <div id="alertContainer"></div>
 
             <form id="loginForm" onsubmit="return false;">
                 <div class="mb-3">
@@ -161,7 +161,7 @@
                             <i class="bi bi-person text-muted"></i>
                         </span>
                         <input type="text" class="form-control border-start-0" id="username" name="username"
-                            placeholder="Masukkan Nama Lengkap" required>
+                            placeholder="Masukkan Nama Lengkap" required autocomplete="name">
                     </div>
                     <small class="text-muted">Masukkan nama sesuai data anggota</small>
                 </div>
@@ -173,7 +173,7 @@
                             <i class="bi bi-hash text-muted"></i>
                         </span>
                         <input type="text" class="form-control border-start-0 border-end-0" id="password"
-                            name="password" placeholder="Masukkan NIM" required>
+                            name="password" placeholder="Masukkan NIM" required autocomplete="off">
                         <button class="btn btn-outline-light border-start-0 text-muted" type="button"
                             id="togglePassword" style="border: 1px solid #dee2e6;">
                             <i class="bi bi-eye" id="eyeIcon"></i>
@@ -186,7 +186,9 @@
                     <a href="#" class="forgot-password">Lupa Data?</a>
                 </div>
 
-                <button type="submit" class="btn btn-login w-100">Masuk</button>
+                <button type="submit" class="btn btn-login w-100">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Masuk
+                </button>
             </form>
         </div>
 
