@@ -105,80 +105,117 @@ document.getElementById('loginForm').addEventListener('submit', async function (
         // Save to localStorage
         localStorage.setItem('userSession', JSON.stringify(sessionData));
 
-        // Verify saved data
-        const savedSession = localStorage.getItem('userSession');
-        const parsedSession = JSON.parse(savedSession);
-        console.log('✅ Session saved and verified:', parsedSession);
-
-        showAlert('✓ Login berhasil! Mengalihkan...', 'success');
-
-        setTimeout(() => {
-            window.location.href = 'enter-code-anggota.html';
-        }, 1500);
-
-    } catch (error) {
-        console.error('❌ Login error:', error);
-        showAlert(error.message, 'danger');
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalBtnText;
-    }
-});
-
-function showAlert(message, type = 'info') {
-    // Create alert element if not exists
-    let alertBox = document.getElementById('alertBox');
-    
-    if (!alertBox) {
-        alertBox = document.createElement('div');
-        alertBox.id = 'alertBox';
-        alertBox.style.marginBottom = '1rem';
-        
-        // Insert before form
-        const form = document.getElementById('loginForm');
-        form.parentNode.insertBefore(alertBox, form);
-    }
-
-    const iconMap = {
-        'success': 'check-circle-fill',
-        'danger': 'x-circle-fill',
-        'warning': 'exclamation-triangle-fill',
-        'info': 'info-circle-fill'
-    };
-
-    alertBox.className = `alert alert-${type}`;
-    alertBox.innerHTML = `<i class="bi bi-${iconMap[type]} me-2"></i>${message}`;
-    alertBox.style.display = 'block';
-
-    setTimeout(() => {
-        alertBox.style.display = 'none';
-    }, 5000);
-}
-
-// Check if already logged in
-window.addEventListener('DOMContentLoaded', function() {
-    const session = localStorage.getItem('userSession');
-    
-    if (session) {
+        // Force localStorage to flush (untuk beberapa browser)
         try {
-            const sessionData = JSON.parse(session);
-            console.log('📌 Existing session found:', sessionData);
-            
-            // If code already verified, go to voting
-            if (sessionData.codeVerified) {
-                console.log('✅ Code verified, redirecting to voting...');
-                window.location.href = '../voting/anggota/vote.html';
-                return;
-            }
-            
-            // If session exists but code not verified, go to enter code
-            if (sessionData.namaLengkap && sessionData.nim && sessionData.electionId) {
-                console.log('⚠️ Session exists, redirecting to enter code...');
-                window.location.href = 'enter-code-anggota.html';
-                return;
-            }
+            localStorage.setItem('_test', '1');
+            localStorage.removeItem('_test');
         } catch (e) {
-            console.error('❌ Invalid session, clearing...', e);
-            localStorage.clear();
+            console.error('localStorage test failed');
         }
-    }
-});
+
+        // Verify saved data BEBERAPA KALI untuk memastikan
+        let verificationAttempts = 0;
+        const maxAttempts = 3;
+
+        const verifySave = () => {
+            const savedSession = localStorage.getItem('userSession');
+
+            if (savedSession) {
+                try {
+                    const parsedSession = JSON.parse(savedSession);
+
+                    // Pastikan SEMUA field penting ada
+                    if (parsedSession.namaLengkap &&
+                        parsedSession.nim &&
+                        parsedSession.electionId) {
+
+                        console.log('✅ Session saved and verified:', parsedSession);
+                        showAlert('✓ Login berhasil! Mengalihkan...', 'success');
+
+                        setTimeout(() => {
+                            window.location.href = 'enter-code-anggota.html';
+                        }, 800);
+
+                        return true;
+                    }
+                } catch (e) {
+                    console.error('Parse error:', e);
+                }
+            }
+
+            // Retry if failed
+            verificationAttempts++;
+            if (verificationAttempts < maxAttempts) {
+                console.warn(`⚠️ Verification attempt ${verificationAttempts} failed, retrying...`);
+                setTimeout(verifySave, 200);
+                return false;
+            } else {
+                console.error('❌ Failed to verify session after multiple attempts');
+                showAlert('Gagal menyimpan sesi. Silakan coba lagi.', 'danger');
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+                return false;
+            }
+        };
+
+        verifySave();
+
+        
+        function showAlert(message, type = 'info') {
+            // Create alert element if not exists
+            let alertBox = document.getElementById('alertBox');
+
+            if (!alertBox) {
+                alertBox = document.createElement('div');
+                alertBox.id = 'alertBox';
+                alertBox.style.marginBottom = '1rem';
+
+                // Insert before form
+                const form = document.getElementById('loginForm');
+                form.parentNode.insertBefore(alertBox, form);
+            }
+
+            const iconMap = {
+                'success': 'check-circle-fill',
+                'danger': 'x-circle-fill',
+                'warning': 'exclamation-triangle-fill',
+                'info': 'info-circle-fill'
+            };
+
+            alertBox.className = `alert alert-${type}`;
+            alertBox.innerHTML = `<i class="bi bi-${iconMap[type]} me-2"></i>${message}`;
+            alertBox.style.display = 'block';
+
+            setTimeout(() => {
+                alertBox.style.display = 'none';
+            }, 5000);
+        }
+
+        // Check if already logged in
+        window.addEventListener('DOMContentLoaded', function () {
+            const session = localStorage.getItem('userSession');
+
+            if (session) {
+                try {
+                    const sessionData = JSON.parse(session);
+                    console.log('📌 Existing session found:', sessionData);
+
+                    // If code already verified, go to voting
+                    if (sessionData.codeVerified) {
+                        console.log('✅ Code verified, redirecting to voting...');
+                        window.location.href = '../voting/anggota/vote.html';
+                        return;
+                    }
+
+                    // If session exists but code not verified, go to enter code
+                    if (sessionData.namaLengkap && sessionData.nim && sessionData.electionId) {
+                        console.log('⚠️ Session exists, redirecting to enter code...');
+                        window.location.href = 'enter-code-anggota.html';
+                        return;
+                    }
+                } catch (e) {
+                    console.error('❌ Invalid session, clearing...', e);
+                    localStorage.clear();
+                }
+            }
+        });
