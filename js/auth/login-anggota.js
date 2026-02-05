@@ -1,221 +1,184 @@
-document.addEventListener('DOMContentLoaded', function () {
-    // Toggle password visibility
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-    const eyeIcon = document.getElementById('eyeIcon');
+// login-anggota.js - Fixed version with complete session data
 
-    if (togglePassword) {
-        togglePassword.addEventListener('click', function () {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            eyeIcon.classList.toggle('bi-eye');
-            eyeIcon.classList.toggle('bi-eye-slash');
-        });
-    }
+console.log('🔄 Login Anggota JS loaded');
 
-    // Handle login form
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-});
+// Toggle password visibility
+const togglePassword = document.getElementById('togglePassword');
+const passwordInput = document.getElementById('password');
+const eyeIcon = document.getElementById('eyeIcon');
 
-async function handleLogin(e) {
+if (togglePassword) {
+    togglePassword.addEventListener('click', function () {
+        const type = passwordInput.type === 'password' ? 'text' : 'password';
+        passwordInput.type = type;
+        eyeIcon.classList.toggle('bi-eye');
+        eyeIcon.classList.toggle('bi-eye-slash');
+    });
+}
+
+// Handle login form submission
+document.getElementById('loginForm').addEventListener('submit', async function (e) {
     e.preventDefault();
 
-    const username = document.getElementById('username').value.trim();
+    const namaLengkap = document.getElementById('username').value.trim();
     const nim = document.getElementById('password').value.trim();
-    const submitBtn = e.target.querySelector('button[type="submit"]');
 
-    if (!username || !nim) {
-        showAlert('Nama lengkap dan NIM harus diisi!', 'warning');
+    console.log('📝 Login attempt:', { namaLengkap, nim });
+
+    if (!namaLengkap || !nim) {
+        showAlert('Mohon lengkapi semua field!', 'warning');
         return;
     }
 
-    // Disable button dan ubah text
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    const originalBtnText = submitBtn.innerHTML;
     submitBtn.disabled = true;
-    const originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Memproses...';
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memverifikasi...';
 
     try {
-        console.log('🔐 Attempting login for:', username, nim);
+        console.log('🔍 Checking anggota in database...');
 
-        // 1. Cari user berdasarkan nama dan nim di tabel anggota
-        const { data: anggotaData, error: anggotaError } = await supabaseClient
+        // Get active election first
+        const { data: election, error: electionError } = await supabaseClient
+            .from('elections')
+            .select('id, title')
+            .eq('is_active', true)
+            .single();
+
+        if (electionError || !election) {
+            console.error('❌ No active election:', electionError);
+            throw new Error('Tidak ada pemilihan yang sedang aktif saat ini.');
+        }
+
+        console.log('✅ Active election found:', election);
+
+        // Check if anggota exists in database
+        const { data: anggota, error: anggotaError } = await supabaseClient
             .from('anggota')
-            .select('*, users!inner(*)')
-            .eq('nama_lengkap', username)
+            .select('*')
+            .eq('nama_lengkap', namaLengkap)
             .eq('nim', nim)
             .maybeSingle();
 
+        console.log('📊 Anggota query result:', { anggota, anggotaError });
+
         if (anggotaError) {
-            console.error('❌ Error fetching anggota:', anggotaError);
-            throw new Error('Terjadi kesalahan saat mengecek data anggota');
+            console.error('❌ Database error:', anggotaError);
+            throw new Error('Terjadi kesalahan saat memeriksa data. Silakan coba lagi.');
         }
 
-        if (!anggotaData) {
+        if (!anggota) {
             console.warn('⚠️ Anggota not found');
-            showAlert('Nama lengkap atau NIM tidak ditemukan!', 'danger');
-            return;
+            throw new Error('Nama atau NIM tidak ditemukan. Pastikan data Anda sudah terdaftar.');
         }
 
-        console.log('✅ Anggota found:', anggotaData);
+        console.log('✅ Anggota verified:', anggota);
 
-        // 2. Cek apakah user aktif
-        if (!anggotaData.users.is_active) {
-            showAlert('Akun Anda tidak aktif. Hubungi admin!', 'danger');
-            return;
-        }
-
-        // 3. Ambil pemilihan yang sedang aktif
-        const { data: activeElection, error: electionError } = await supabaseClient
-            .from('elections')
-            .select('*')
-            .eq('is_active', true)
-            .eq('allow_anggota', true)
-            .maybeSingle();
-
-        if (electionError) {
-            console.error('❌ Error fetching election:', electionError);
-            throw new Error('Terjadi kesalahan saat mengecek pemilihan');
-        }
-
-        if (!activeElection) {
-            showAlert('Tidak ada pemilihan yang sedang berlangsung untuk anggota!', 'warning');
-            return;
-        }
-
-        console.log('📊 Active election:', activeElection);
-
-        // 4. CEK APAKAH SUDAH VOTE - berdasarkan voter_identifier (NIM)
-        const { data: existingVote, error: voteError } = await supabaseClient
+        // Check if already voted
+        const { data: voteData, error: voteError } = await supabaseClient
             .from('votes')
             .select('*')
-            .eq('election_id', activeElection.id)
+            .eq('election_id', election.id)
             .eq('voter_identifier', nim)
             .maybeSingle();
 
-        if (voteError) {
-            console.error('❌ Error checking vote:', voteError);
-            throw new Error('Terjadi kesalahan saat mengecek status voting');
+        if (voteData) {
+            console.warn('⚠️ Already voted!');
+            throw new Error('Anda sudah melakukan voting untuk pemilihan ini!');
         }
 
-        // BLOKIR LOGIN JIKA SUDAH VOTE
-        if (existingVote) {
-            console.warn('⚠️ User already voted!');
-            showAlert(
-                'Anda sudah melakukan voting pada pemilihan ini! Akses ditolak.',
-                'danger',
-                5000
-            );
-            return;
-        }
-
-        console.log('✅ User has not voted yet, login allowed');
-
-        // 5. Simpan session ke localStorage
+        // Create complete session object with ALL required data
         const sessionData = {
-            userId: anggotaData.user_id,
-            anggotaId: anggotaData.id,
-            username: anggotaData.users.username,
-            role: anggotaData.users.role,
-            namaLengkap: anggotaData.nama_lengkap,
-            nim: anggotaData.nim,
-            prodi: anggotaData.prodi,
-            angkatan: anggotaData.angkatan,
-            divisi: anggotaData.divisi,
-            jabatan: anggotaData.jabatan,
-            electionId: activeElection.id,
-            electionTitle: activeElection.title,
-            loginTime: new Date().toISOString()
+            namaLengkap: anggota.nama_lengkap,
+            nim: anggota.nim,
+            divisi: anggota.divisi || 'Umum',
+            jabatan: anggota.jabatan || 'Anggota',
+            electionId: election.id,
+            electionTitle: election.title,
+            loginTime: new Date().toISOString(),
+            codeVerified: false,
+            userType: 'anggota'
         };
 
+        console.log('💾 Saving session data:', sessionData);
+
+        // Save to localStorage
         localStorage.setItem('userSession', JSON.stringify(sessionData));
-        console.log('✅ Session saved:', sessionData);
 
-        // 6. Log activity
-        try {
-            await supabaseClient.from('activity_logs').insert({
-                user_id: anggotaData.user_id,
-                action: 'LOGIN',
-                description: `Anggota ${anggotaData.nama_lengkap} login untuk voting`,
-                entity_type: 'election',
-                entity_id: activeElection.id
-            });
-        } catch (logError) {
-            console.warn('⚠️ Failed to log activity:', logError);
-        }
+        // Verify saved data
+        const savedSession = localStorage.getItem('userSession');
+        const parsedSession = JSON.parse(savedSession);
+        console.log('✅ Session saved and verified:', parsedSession);
 
-        // 7. Redirect ke halaman voting
-        showAlert('Login berhasil! Mengalihkan ke halaman voting...', 'success', 2000);
-        
+        showAlert('✓ Login berhasil! Mengalihkan...', 'success');
+
         setTimeout(() => {
             window.location.href = 'enter-code-anggota.html';
         }, 1500);
 
     } catch (error) {
         console.error('❌ Login error:', error);
-        showAlert(error.message || 'Terjadi kesalahan saat login', 'danger');
-    } finally {
-        // Re-enable button
+        showAlert(error.message, 'danger');
         submitBtn.disabled = false;
-        submitBtn.innerHTML = originalText;
+        submitBtn.innerHTML = originalBtnText;
     }
-}
+});
 
-function showAlert(message, type = 'info', duration = 4000) {
-    // Hapus alert sebelumnya jika ada
-    const existingAlert = document.querySelector('.custom-alert');
-    if (existingAlert) {
-        existingAlert.remove();
+function showAlert(message, type = 'info') {
+    // Create alert element if not exists
+    let alertBox = document.getElementById('alertBox');
+    
+    if (!alertBox) {
+        alertBox = document.createElement('div');
+        alertBox.id = 'alertBox';
+        alertBox.style.marginBottom = '1rem';
+        
+        // Insert before form
+        const form = document.getElementById('loginForm');
+        form.parentNode.insertBefore(alertBox, form);
     }
 
-    const alertDiv = document.createElement('div');
-    alertDiv.className = `alert alert-${type} alert-dismissible fade show custom-alert`;
-    alertDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        z-index: 9999;
-        min-width: 300px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        animation: slideIn 0.3s ease;
-    `;
-
-    const icons = {
-        success: 'bi-check-circle-fill',
-        danger: 'bi-x-circle-fill',
-        warning: 'bi-exclamation-triangle-fill',
-        info: 'bi-info-circle-fill'
+    const iconMap = {
+        'success': 'check-circle-fill',
+        'danger': 'x-circle-fill',
+        'warning': 'exclamation-triangle-fill',
+        'info': 'info-circle-fill'
     };
 
-    alertDiv.innerHTML = `
-        <i class="bi ${icons[type]} me-2"></i>
-        <strong>${message}</strong>
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-    `;
+    alertBox.className = `alert alert-${type}`;
+    alertBox.innerHTML = `<i class="bi bi-${iconMap[type]} me-2"></i>${message}`;
+    alertBox.style.display = 'block';
 
-    document.body.appendChild(alertDiv);
-
-    // Auto remove
     setTimeout(() => {
-        alertDiv.classList.remove('show');
-        setTimeout(() => alertDiv.remove(), 300);
-    }, duration);
+        alertBox.style.display = 'none';
+    }, 5000);
 }
 
-// Add animation style
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-        to {
-            transform: translateX(0);
-            opacity: 1;
+// Check if already logged in
+window.addEventListener('DOMContentLoaded', function() {
+    const session = localStorage.getItem('userSession');
+    
+    if (session) {
+        try {
+            const sessionData = JSON.parse(session);
+            console.log('📌 Existing session found:', sessionData);
+            
+            // If code already verified, go to voting
+            if (sessionData.codeVerified) {
+                console.log('✅ Code verified, redirecting to voting...');
+                window.location.href = '../voting/anggota/vote.html';
+                return;
+            }
+            
+            // If session exists but code not verified, go to enter code
+            if (sessionData.namaLengkap && sessionData.nim && sessionData.electionId) {
+                console.log('⚠️ Session exists, redirecting to enter code...');
+                window.location.href = 'enter-code-anggota.html';
+                return;
+            }
+        } catch (e) {
+            console.error('❌ Invalid session, clearing...', e);
+            localStorage.clear();
         }
     }
-`;
-document.head.appendChild(style);
+});
