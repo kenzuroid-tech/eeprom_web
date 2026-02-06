@@ -131,7 +131,7 @@ eeprom_web/
 
 1. **Clone atau Download Repository**
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/kenzuroid-tech/eeprom_web.git
    cd eeprom_web
    ```
 
