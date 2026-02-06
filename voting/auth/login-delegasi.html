@@ -75,9 +75,7 @@
         .form-label {
             font-weight: 500;
             color: var(--soft-text);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            font-size: 0.9rem;
         }
 
         .form-control {
@@ -94,13 +92,12 @@
 
         .input-group-text {
             background-color: var(--light-gray);
-            border-radius: 10px 0 0 10px;
         }
 
         .btn-login {
             background-color: var(--primary-blue);
             border: none;
-            padding: 14px;
+            padding: 12px;
             border-radius: 10px;
             font-weight: 600;
             width: 100%;
@@ -113,6 +110,15 @@
             background-color: var(--secondary-blue);
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(26, 35, 126, 0.3);
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
+            border-left: 4px solid #ffc107;
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
         }
 
         .footer-text {
@@ -135,48 +141,55 @@
             <div class="logo-wrapper">
                 <img src="/images/eeprom_logo.png" alt="EEPROM Logo" class="logo-image">
                 <h4 class="fw-bold mt-3" style="color: var(--dark-text);">Login Delegasi</h4>
-                <p class="text-muted small">Verifikasi identitas delegasi pemilihan</p>
+                <p class="text-muted small">Selamat datang Delegasi dari Organisasi Lain</p>
             </div>
 
-            <form id="delegasiLoginForm">
+            <!-- Info Box -->
+            <div class="info-box">
+                <i class="bi bi-info-circle-fill me-2"></i>
+                <strong>Untuk Delegasi:</strong> Masukkan nama lengkap, NIM, dan asal delegasi Anda. Kode akses akan dibuat otomatis setelah login.
+            </div>
+
+            <form id="delegasiLoginForm" onsubmit="return false;">
                 <div class="mb-3">
                     <label for="namaLengkap" class="form-label">Nama Lengkap</label>
                     <div class="input-group">
-                        <span class="input-group-text border-end-0">
-                            <i class="bi bi-person-vcard text-muted"></i>
+                        <span class="input-group-text border-end-0 bg-white">
+                            <i class="bi bi-person text-muted"></i>
                         </span>
                         <input type="text" class="form-control border-start-0" id="namaLengkap" name="namaLengkap"
-                            placeholder="Sesuai kartu identitas" required>
+                            placeholder="Masukkan Nama Lengkap" required autocomplete="name">
                     </div>
+                    <small class="text-muted">Masukkan nama lengkap sesuai identitas</small>
                 </div>
 
                 <div class="mb-3">
                     <label for="nim" class="form-label">NIM</label>
                     <div class="input-group">
-                        <span class="input-group-text border-end-0">
+                        <span class="input-group-text border-end-0 bg-white">
                             <i class="bi bi-hash text-muted"></i>
                         </span>
-                        <input type="password" class="form-control border-start-0 border-end-0" id="nim" name="nim"
-                            placeholder="Contoh: 24410xxxxxx" required>
-                        <button class="btn btn-outline-light border-start-0 text-muted shadow-none" type="button"
-                            onclick="toggleVisibility('nim', 'eyeNim')" style="border: 1px solid #dee2e6;">
-                            <i class="bi bi-eye" id="eyeNim"></i>
-                        </button>
+                        <input type="text" class="form-control border-start-0" id="nim" name="nim"
+                            placeholder="Masukkan NIM" required autocomplete="off">
                     </div>
+                    <small class="text-muted">Masukkan NIM Anda</small>
                 </div>
 
                 <div class="mb-3">
-                    <label for="instansi" class="form-label">Asal Instansi</label>
+                    <label for="asalDelegasi" class="form-label">Asal Delegasi</label>
                     <div class="input-group">
-                        <span class="input-group-text border-end-0">
+                        <span class="input-group-text border-end-0 bg-white">
                             <i class="bi bi-building text-muted"></i>
                         </span>
-                        <input type="text" class="form-control border-start-0" id="instansi" name="instansi"
-                            placeholder="Contoh: HME, HMTI, WRI" required>
+                        <input type="text" class="form-control border-start-0" id="asalDelegasi" name="asalDelegasi"
+                            placeholder="contoh: HMTI, BEM, LDK" required autocomplete="off">
                     </div>
+                    <small class="text-muted">Masukkan nama organisasi asal Anda</small>
                 </div>
 
-                <button type="submit" class="btn btn-login">Masuk Akses Delegasi</button>
+                <button type="submit" class="btn btn-login w-100">
+                    <i class="bi bi-box-arrow-in-right me-2"></i> Masuk
+                </button>
             </form>
         </div>
 

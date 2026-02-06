@@ -16,7 +16,6 @@
             --accent-color: #3949AB;
             --bg-body: #F4F7FE;
             --sidebar-width: 260px;
-            /* Samakan dengan lebar sidebar.html */
         }
 
         body {
@@ -26,7 +25,6 @@
             margin: 0;
         }
 
-        /* PERBAIKAN UTAMA: Agar konten tidak terpotong sidebar */
         .admin-main-content {
             margin-left: var(--sidebar-width);
             width: calc(100% - var(--sidebar-width));
@@ -35,7 +33,6 @@
             transition: all 0.3s ease;
         }
 
-        /* Navbar Atas */
         .page-header {
             background: white;
             padding: 1.5rem 2rem;
@@ -86,11 +83,9 @@
             box-shadow: 0 4px 12px rgba(26, 35, 126, 0.2);
         }
 
-        /* Responsif Sidebar */
         @media (max-width: 992px) {
             .admin-main-content {
                 margin-left: 85px;
-                /* Sesuaikan dengan lebar sidebar mini */
                 width: calc(100% - 85px);
             }
         }
@@ -206,7 +201,58 @@
         </div>
     </div>
 
-    <div class="modal fade" id="generateModal" tabindex="-1">...</div>
+    <!-- Modal Generate Kode -->
+    <div class="modal fade" id="generateModal" tabindex="-1" aria-labelledby="generateModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title fw-bold" id="generateModalLabel">
+                        <i class="bi bi-plus-circle-fill me-2"></i>Generate Kode Akses
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label for="userTypeSelect" class="form-label fw-semibold">Pilih Tipe User</label>
+                        <select class="form-select" id="userTypeSelect" onchange="toggleInputFields()">
+                            <option value="">-- Pilih Tipe --</option>
+                        </select>
+                        <small class="text-muted">Tipe yang tersedia sesuai pengaturan pemilihan</small>
+                    </div>
+
+                    <!-- Info Auto Generate untuk Anggota/Alumni -->
+                    <div id="autoGenerateInfo" style="display: none;">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                            Kode akan otomatis digenerate untuk semua <strong id="userTypeLabel"></strong> yang terdaftar di database.
+                        </div>
+                    </div>
+
+                    <!-- Input Manual untuk Delegasi -->
+                    <div id="delegasiInputs" style="display: none;">
+                        <div class="mb-3">
+                            <label for="delegasiName" class="form-label fw-semibold">Nama Delegasi</label>
+                            <input type="text" class="form-control" id="delegasiName" placeholder="Contoh: John Doe">
+                        </div>
+                        <div class="mb-3">
+                            <label for="delegasiNim" class="form-label fw-semibold">NIM/ID (Opsional)</label>
+                            <input type="text" class="form-control" id="delegasiNim" placeholder="Contoh: 123456789">
+                        </div>
+                        <div class="mb-3">
+                            <label for="delegasiInstansi" class="form-label fw-semibold">Instansi</label>
+                            <input type="text" class="form-control" id="delegasiInstansi" placeholder="Contoh: Universitas XYZ">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary fw-bold" onclick="generateCodes()">
+                        <i class="bi bi-check-circle me-2"></i>Generate Kode
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -222,7 +268,6 @@
             console.log('🔄 Loading access codes page...');
 
             try {
-                // Load elections
                 console.log('📊 Fetching elections...');
                 const { data: elections, error } = await supabaseClient
                     .from('elections')
@@ -268,14 +313,12 @@
             </option>`;
                 }).join('');
 
-                // Pilih election yang aktif atau yang pertama
                 const activeElection = elections.find(e => e.is_active);
                 selectedElectionId = activeElection ? activeElection.id : elections[0].id;
                 currentElection = elections.find(e => e.id === selectedElectionId);
 
                 console.log('📌 Selected election:', currentElection);
 
-                // Load access codes untuk election terpilih
                 await loadAccessCodes();
 
             } catch (error) {
@@ -301,7 +344,6 @@
             console.log('📊 Loading access codes for election:', selectedElectionId);
 
             try {
-                // Load election detail
                 const { data: election, error: electionError } = await supabaseClient
                     .from('elections')
                     .select('*')
@@ -316,7 +358,6 @@
                 currentElection = election;
                 console.log('✅ Election loaded:', election);
 
-                // Load access codes
                 const { data: codes, error: codesError } = await supabaseClient
                     .from('access_codes')
                     .select('*')
@@ -330,7 +371,6 @@
 
                 console.log('✅ Access codes loaded:', codes);
 
-                // PERBAIKAN: Check status voting berdasarkan voter_identifier atau voter_id
                 const { data: votes, error: votesError } = await supabaseClient
                     .from('votes')
                     .select('voter_identifier, voter_id, voted_at')
@@ -342,18 +382,14 @@
 
                 console.log('✅ Votes loaded:', votes);
 
-                // Set is_used berdasarkan data votes
                 if (votes && votes.length > 0 && codes) {
                     codes.forEach(code => {
-                        // Cek apakah voter_identifier atau user_id ada di daftar votes
                         const voteRecord = votes.find(v => {
-                            // Cek berdasarkan voter_identifier (NIM untuk anggota)
                             if (v.voter_identifier && code.voter_identifier) {
                                 return v.voter_identifier === code.voter_identifier;
                             }
-                            // Atau cek berdasarkan voter_id jika ada user_id di access_codes
-                            if (v.voter_id && code.user_id) {
-                                return v.voter_id === code.user_id;
+                            if (v.voter_id ) {
+                                return v.voter_id;
                             }
                             return false;
                         });
@@ -406,7 +442,6 @@
             document.getElementById('alumniTabCount').textContent = alumniCodes.length;
             document.getElementById('delegasiTabCount').textContent = delegasiCodes.length;
 
-            // Update election details info
             if (currentElection) {
                 const allowedTypes = [];
                 if (currentElection.allow_anggota) allowedTypes.push('Anggota');
@@ -544,7 +579,6 @@
                 return;
             }
 
-            // Update dropdown options based on election settings
             const userTypeSelect = document.getElementById('userTypeSelect');
             let options = '<option value="">-- Pilih Tipe --</option>';
 
@@ -610,7 +644,7 @@
                 if (userType === 'anggota') {
                     const { data: members, error } = await supabaseClient
                         .from('anggota')
-                        .select('nama_lengkap, nim, user_id');
+                        .select('nama_lengkap, nim');
 
                     if (error) throw error;
 
@@ -626,7 +660,6 @@
                         voter_identifier: m.nim,
                         user_type: 'anggota',
                         role_type: 'anggota',
-                        user_id: m.user_id,
                         is_used: false,
                         is_active: true
                     }));
@@ -634,7 +667,7 @@
                 } else if (userType === 'alumni') {
                     const { data: alumni, error } = await supabaseClient
                         .from('alumni')
-                        .select('nama_lengkap, generasi, angkatan, jabatan, user_id');
+                        .select('nama_lengkap, generasi, angkatan, jabatan');
 
                     if (error) throw error;
 
@@ -650,7 +683,6 @@
                         voter_identifier: `Gen ${a.generasi}`,
                         user_type: 'alumni',
                         role_type: 'alumni',
-                        user_id: a.user_id,
                         voter_metadata: JSON.stringify({
                             generasi: a.generasi,
                             angkatan: a.angkatan,
@@ -702,7 +734,6 @@
                 bootstrap.Modal.getInstance(document.getElementById('generateModal')).hide();
                 loadAccessCodes();
 
-                // Reset form
                 document.getElementById('userTypeSelect').value = '';
                 document.getElementById('delegasiName').value = '';
                 document.getElementById('delegasiNim').value = '';
@@ -816,15 +847,12 @@
             setTimeout(() => toast.remove(), 3000);
         }
 
-        // Event Listeners
         window.addEventListener('load', loadPage);
 
-        // Load sidebar
         fetch('include/sidebar.html')
             .then(res => res.text())
             .then(data => {
                 document.getElementById('sidebar-placeholder').innerHTML = data;
-                // Logika aktifkan menu
                 const currentPath = window.location.pathname.split('/').pop();
                 document.querySelectorAll('.sidebar-link').forEach(link => {
                     if (link.getAttribute('href') === currentPath) {
