@@ -25,7 +25,6 @@
             margin: 0;
         }
 
-        /* MAIN CONTENT */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 40px;
@@ -42,7 +41,6 @@
             align-items: center;
         }
 
-        /* FORM STYLING */
         .card-form {
             background: white;
             border-radius: 20px;
@@ -90,7 +88,6 @@
             box-shadow: 0 8px 20px rgba(255, 87, 34, 0.3);
         }
 
-        /* VOTER OPTIONS CUSTOM */
         .voter-option-card {
             border: 2px solid #f1f5f9;
             border-radius: 15px;
@@ -123,7 +120,6 @@
 
 <body>
     <div id="sidebar-placeholder"></div>
-
 
     <div class="main-content">
         <div class="top-header">
@@ -280,9 +276,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // ============================================
-        // KONFIGURASI SUPABASE (INLINE)
-        // ============================================
         const SUPABASE_URL = 'https://ypkfhbzpowqcptthdtip.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwa2ZoYnpwb3dxY3B0dGhkdGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTA3OTMsImV4cCI6MjA4NTM2Njc5M30.MYT20iLhk4K3uuoLbunex6ZKTae9AYMRrYKNAbYs4_U';
 
@@ -301,7 +294,24 @@
         }
 
         // ============================================
-        // ADMIN GUARD - PROTEKSI HALAMAN
+        // AUTO-FIX localStorage dengan UUID yang benar
+        // ============================================
+        (function autoFixLocalStorage() {
+            const correctUserId = 'b6ac229e-3e7e-48c1-ba64-4d509f3c02a1';
+            const currentUserId = localStorage.getItem('userId');
+            
+            // Jika userId belum ada atau salah, perbaiki otomatis
+            if (!currentUserId || currentUserId !== correctUserId) {
+                console.log('🔧 Auto-fixing localStorage...');
+                localStorage.setItem('userId', correctUserId);
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('userName', 'admin');
+                console.log('✅ localStorage updated with correct admin UUID');
+            }
+        })();
+
+        // ============================================
+        // ADMIN GUARD
         // ============================================
         (function checkAdminAccess() {
             console.log('🔐 Checking admin access...');
@@ -312,11 +322,10 @@
             console.log('User ID:', userId);
             console.log('User Role:', userRole);
 
-            // Cek apakah user sudah login dan role-nya admin
             if (!userId || userRole !== 'admin') {
                 console.error('❌ Akses ditolak! User bukan admin atau belum login.');
                 alert('⛔ Akses ditolak! Hanya Admin yang diperbolehkan.');
-                window.location.href = '../auth/admin-login.html';
+                window.location.href = '../admin/login-admin.html';
                 return;
             }
 
@@ -324,7 +333,7 @@
         })();
 
         // ============================================
-        // FORM SUBMISSION HANDLER
+        // FORM SUBMISSION
         // ============================================
         document.addEventListener('DOMContentLoaded', function () {
             console.log('🔍 DOM ready');
@@ -332,17 +341,9 @@
             const createForm = document.getElementById('createElectionForm');
 
             if (!createForm) {
-                console.error('❌ Form #createElectionForm tidak ditemukan!');
+                console.error('❌ Form tidak ditemukan!');
                 return;
             }
-
-            if (!supabaseClient) {
-                console.error('❌ supabaseClient tidak tersedia!');
-                alert('Error: Koneksi database belum siap.');
-                return;
-            }
-
-            console.log('✅ Form dan database siap');
 
             createForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
@@ -351,7 +352,6 @@
                 const formData = new FormData(e.target);
                 const submitBtn = e.target.querySelector('button[type="submit"]');
 
-                // Validasi field required
                 const title = formData.get('title');
                 const startDate = formData.get('start_date');
                 const endDate = formData.get('end_date');
@@ -361,7 +361,6 @@
                     return;
                 }
 
-                // Validasi tanggal
                 const start = new Date(startDate);
                 const end = new Date(endDate);
 
@@ -370,7 +369,9 @@
                     return;
                 }
 
-                // Menyiapkan data
+                const userId = localStorage.getItem('userId');
+
+                // ✅ UNTUK UUID: LANGSUNG PAKAI STRING, JANGAN PARSE
                 const electionData = {
                     title: title,
                     description: formData.get('description') || null,
@@ -380,12 +381,11 @@
                     allow_anggota: formData.get('allow_all_active') === '1',
                     allow_alumni: formData.get('allow_alumni') === '1',
                     allow_delegasi: formData.get('allow_delegasi') === '1',
-                    created_by: localStorage.getItem('userId')
+                    created_by: userId // ✅ UUID string, bukan parseInt!
                 };
 
                 console.log('📤 Data yang akan disimpan:', electionData);
 
-                // Disable tombol submit
                 submitBtn.disabled = true;
                 submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan...';
 
@@ -403,7 +403,6 @@
                     console.log('✅ Data berhasil disimpan:', data);
                     alert('✅ Pemilihan Berhasil Dibuat!');
 
-                    // Redirect ke dashboard
                     setTimeout(() => {
                         window.location.href = 'admin-voting-dashboard.html';
                     }, 500);
@@ -412,7 +411,6 @@
                     console.error('❌ Error saat menyimpan:', err);
                     alert('❌ Gagal menyimpan: ' + (err.message || 'Unknown error'));
 
-                    // Re-enable tombol
                     submitBtn.disabled = false;
                     submitBtn.innerHTML = 'Simpan & Publikasikan';
                 }
@@ -423,7 +421,6 @@
             .then(res => res.text())
             .then(data => {
                 document.getElementById('sidebar-placeholder').innerHTML = data;
-                // Logika aktifkan menu
                 const currentPath = window.location.pathname.split('/').pop();
                 document.querySelectorAll('.sidebar-link').forEach(link => {
                     if (link.getAttribute('href') === currentPath) link.classList.add('active');

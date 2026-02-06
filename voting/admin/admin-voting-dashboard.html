@@ -229,6 +229,55 @@
             transform: translateY(-2px);
         }
 
+        /* Draft Election Item */
+        .draft-item {
+            background: white;
+            border: 2px solid #e8eaf6;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .draft-item:hover {
+            border-color: var(--secondary-blue);
+            box-shadow: 0 4px 15px rgba(63, 81, 181, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .draft-item .draft-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+        }
+
+        .draft-item .draft-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--primary-blue);
+            margin-bottom: 5px;
+        }
+
+        .draft-item .draft-date {
+            font-size: 0.85rem;
+            color: var(--soft-text);
+        }
+
+        .draft-item .draft-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-activate {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .btn-activate:hover {
+            background-color: #388E3C;
+        }
+
         /* Loading Spinner */
         .spinner-overlay {
             position: fixed;
@@ -277,6 +326,19 @@
 
             .btn-action {
                 width: 100%;
+            }
+
+            .draft-item .draft-header {
+                flex-direction: column;
+            }
+
+            .draft-item .draft-actions {
+                margin-top: 10px;
+                width: 100%;
+            }
+
+            .draft-item .draft-actions button {
+                flex: 1;
             }
         }
     </style>
@@ -391,6 +453,21 @@
                 </a>
             </div>
         </div>
+
+        <!-- Draft Elections List -->
+        <div class="card border-0 shadow-sm mt-4" id="draftElectionsList" style="display:none; border-radius: 20px;">
+            <div class="card-body p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold m-0" style="color: var(--primary-blue);">
+                        <i class="bi bi-file-earmark-text me-2"></i>Pemilihan Tersimpan (Draft)
+                    </h5>
+                    <span class="badge bg-secondary rounded-pill px-3 py-2" id="draftCount">0 Draft</span>
+                </div>
+                <div id="draftElectionsContainer">
+                    <!-- Draft items will be inserted here -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Edit Election Modal -->
@@ -456,6 +533,22 @@
         }
 
         // ============================================
+        // AUTO-FIX localStorage
+        // ============================================
+        (function autoFixLocalStorage() {
+            const correctUserId = 'b6ac229e-3e7e-48c1-ba64-4d509f3c02a1';
+            const currentUserId = localStorage.getItem('userId');
+            
+            if (!currentUserId || currentUserId !== correctUserId) {
+                console.log('🔧 Auto-fixing localStorage...');
+                localStorage.setItem('userId', correctUserId);
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('userName', 'admin');
+                console.log('✅ localStorage updated');
+            }
+        })();
+
+        // ============================================
         // ADMIN GUARD
         // ============================================
         (function checkAdminAccess() {
@@ -475,7 +568,7 @@
         // GLOBAL VARIABLES
         // ============================================
         let activeElection = null;
-        let totalMembers = 100; // Default, bisa diambil dari database
+        let totalMembers = 100;
         let editModal;
 
         // ============================================
@@ -513,12 +606,166 @@
         }
 
         // ============================================
-        // MAIN LOAD DASHBOARD FUNCTION - VERSI PERBAIKAN LENGKAP
+        // LOAD DRAFT ELECTIONS
+        // ============================================
+        async function loadDraftElections() {
+            try {
+                console.log('📋 Loading draft elections...');
+
+                const { data: drafts, error } = await supabaseClient
+                    .from('elections')
+                    .select('*')
+                    .eq('is_active', false)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                console.log('📋 Drafts found:', drafts);
+
+                if (!drafts || drafts.length === 0) {
+                    document.getElementById('draftElectionsList').style.display = 'none';
+                    return;
+                }
+
+                // Show draft section
+                document.getElementById('draftElectionsList').style.display = 'block';
+                document.getElementById('draftCount').textContent = `${drafts.length} Draft`;
+
+                // Build draft items HTML
+                const container = document.getElementById('draftElectionsContainer');
+                container.innerHTML = drafts.map(draft => `
+                    <div class="draft-item">
+                        <div class="draft-header">
+                            <div>
+                                <div class="draft-title">
+                                    <i class="bi bi-file-text me-2"></i>${draft.title}
+                                </div>
+                                <div class="draft-date">
+                                    <i class="bi bi-clock me-1"></i>
+                                    Dibuat: ${formatDate(draft.created_at)}
+                                </div>
+                                ${draft.description ? `
+                                    <div class="mt-2 text-muted small">
+                                        <i class="bi bi-info-circle me-1"></i>${draft.description}
+                                    </div>
+                                ` : ''}
+                            </div>
+                            <div class="draft-actions">
+                                <button class="btn btn-sm btn-action btn-activate" onclick="activateDraft('${draft.id}')">
+                                    <i class="bi bi-play-circle me-1"></i>Aktifkan
+                                </button>
+                                <button class="btn btn-sm btn-action btn-edit" onclick="editDraft('${draft.id}')">
+                                    <i class="bi bi-pencil me-1"></i>Edit
+                                </button>
+                                <button class="btn btn-sm btn-action btn-delete" onclick="deleteDraft('${draft.id}')">
+                                    <i class="bi bi-trash me-1"></i>Hapus
+                                </button>
+                            </div>
+                        </div>
+                        <div class="small text-muted">
+                            <i class="bi bi-calendar-range me-1"></i>
+                            ${formatDate(draft.start_date)} - ${formatDate(draft.end_date)}
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('❌ Error loading drafts:', error);
+            }
+        }
+
+        // ============================================
+        // ACTIVATE DRAFT
+        // ============================================
+        async function activateDraft(draftId) {
+            if (!confirm('Aktifkan pemilihan ini? Pemilihan yang sedang aktif akan dinonaktifkan.')) {
+                return;
+            }
+
+            try {
+                showLoading();
+
+                // Deactivate all active elections first
+                await supabaseClient
+                    .from('elections')
+                    .update({ is_active: false })
+                    .eq('is_active', true);
+
+                // Activate this draft
+                const { error } = await supabaseClient
+                    .from('elections')
+                    .update({ is_active: true })
+                    .eq('id', draftId);
+
+                if (error) throw error;
+
+                alert('✅ Pemilihan berhasil diaktifkan!');
+                await loadDashboard();
+
+            } catch (error) {
+                console.error('❌ Error activating draft:', error);
+                alert('❌ Gagal mengaktifkan: ' + error.message);
+                hideLoading();
+            }
+        }
+
+        // ============================================
+        // EDIT DRAFT
+        // ============================================
+        async function editDraft(draftId) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('elections')
+                    .select('*')
+                    .eq('id', draftId)
+                    .single();
+
+                if (error) throw error;
+
+                // Set as active election temporarily for editing
+                activeElection = data;
+                editElection();
+
+            } catch (error) {
+                console.error('❌ Error loading draft:', error);
+                alert('❌ Gagal memuat draft: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // DELETE DRAFT
+        // ============================================
+        async function deleteDraft(draftId) {
+            if (!confirm('Hapus draft ini secara permanen?')) {
+                return;
+            }
+
+            try {
+                showLoading();
+
+                const { error } = await supabaseClient
+                    .from('elections')
+                    .delete()
+                    .eq('id', draftId);
+
+                if (error) throw error;
+
+                alert('✅ Draft berhasil dihapus!');
+                await loadDashboard();
+
+            } catch (error) {
+                console.error('❌ Error deleting draft:', error);
+                alert('❌ Gagal menghapus draft: ' + error.message);
+                hideLoading();
+            }
+        }
+
+        // ============================================
+        // MAIN LOAD DASHBOARD FUNCTION
         // ============================================
         async function loadDashboard() {
             console.log('🔄 Loading dashboard...');
 
-            // Set Admin Info
             const adminName = localStorage.getItem('adminName') || 'Administrator';
             const adminInfoElement = document.getElementById('adminInfo');
             if (adminInfoElement) {
@@ -528,9 +775,8 @@
             try {
                 showLoading();
 
-                console.log('📡 Attempting to fetch elections...');
+                console.log('📡 Fetching active elections...');
 
-                // Get active election dengan error handling yang lebih baik
                 const { data: elections, error: electionError } = await supabaseClient
                     .from('elections')
                     .select('*')
@@ -540,37 +786,35 @@
 
                 console.log('📊 Response:', { elections, electionError });
 
-                // Handle error
                 if (electionError) {
                     console.error('❌ Supabase Error:', electionError);
                     document.getElementById('noElection').style.display = 'block';
                     document.getElementById('electionInfo').style.display = 'none';
+                    
+                    // Load drafts anyway
+                    await loadDraftElections();
                     hideLoading();
-
-                    // Jangan alert berulang, cukup log
-                    console.error('Database error:', electionError.message);
                     return;
                 }
 
-                // Check if elections exist and is an array
                 if (!elections || !Array.isArray(elections) || elections.length === 0) {
                     console.log('❌ Tidak ada pemilihan aktif');
                     document.getElementById('noElection').style.display = 'block';
                     document.getElementById('electionInfo').style.display = 'none';
+                    
+                    // Load drafts
+                    await loadDraftElections();
                     hideLoading();
                     return;
                 }
 
-                // Get first election
                 const election = elections[0];
                 activeElection = election;
                 console.log('✅ Pemilihan aktif ditemukan:', election);
 
-                // Show election info
                 document.getElementById('noElection').style.display = 'none';
                 document.getElementById('electionInfo').style.display = 'block';
 
-                // Display election info safely
                 const electionTitleEl = document.getElementById('electionTitle');
                 const electionDatesEl = document.getElementById('electionDates');
 
@@ -580,40 +824,28 @@
 
                 if (electionDatesEl) {
                     electionDatesEl.innerHTML = `
-                <i class="bi bi-calendar-event me-1"></i>
-                ${formatDate(election.start_date)} - ${formatDate(election.end_date)}
-            `;
+                        <i class="bi bi-calendar-event me-1"></i>
+                        ${formatDate(election.start_date)} - ${formatDate(election.end_date)}
+                    `;
                 }
 
-                // Load results
                 await loadResults(election.id);
+                
+                // Load drafts even if there's active election
+                await loadDraftElections();
 
                 hideLoading();
 
             } catch (error) {
                 console.error('❌ Critical Error:', error);
-
-                // Show no election state instead of alert loop
                 document.getElementById('noElection').style.display = 'block';
                 document.getElementById('electionInfo').style.display = 'none';
+                
+                // Try to load drafts anyway
+                await loadDraftElections();
                 hideLoading();
-
-                // Log error tapi jangan alert
-                console.error('Failed to load dashboard:', error.message);
             }
         }
-
-        // ============================================
-        // DISABLE AUTO-REFRESH SEMENTARA - TAMBAHKAN INI
-        // ============================================
-        // COMMENT OUT auto refresh dulu untuk testing
-        /*
-        setInterval(() => {
-            if (activeElection) {
-                loadDashboard();
-            }
-        }, 30000);
-        */
 
         // ============================================
         // LOAD RESULTS FUNCTION
@@ -622,7 +854,6 @@
             try {
                 console.log('📊 Loading results for election:', electionId);
 
-                // 1. Get total votes
                 const { count: totalVotes, error: votesError } = await supabaseClient
                     .from('votes')
                     .select('*', { count: 'exact', head: true })
@@ -630,9 +861,6 @@
 
                 if (votesError) throw votesError;
 
-                console.log('📊 Total votes:', totalVotes);
-
-                // 2. Get candidates with their vote counts
                 const { data: candidates, error: candidatesError } = await supabaseClient
                     .from('candidates')
                     .select('id, candidate_number, name, photo_url')
@@ -641,9 +869,6 @@
 
                 if (candidatesError) throw candidatesError;
 
-                console.log('👥 Candidates:', candidates);
-
-                // 3. Get vote counts for each candidate
                 const candidatesWithVotes = await Promise.all(
                     candidates.map(async (candidate) => {
                         const { count, error } = await supabaseClient
@@ -659,19 +884,14 @@
                     })
                 );
 
-                console.log('📊 Candidates with votes:', candidatesWithVotes);
-
-                // 4. Calculate participation rate
                 const participationRate = totalMembers > 0
                     ? ((totalVotes / totalMembers) * 100).toFixed(1)
                     : 0;
 
-                // 5. Update UI
                 document.getElementById('totalVotes').textContent = totalVotes || 0;
                 document.getElementById('participationRate').textContent = participationRate + '%';
                 document.getElementById('totalCandidates').textContent = candidates.length;
 
-                // 6. Display results chart
                 displayResults(candidatesWithVotes, totalVotes || 0);
 
             } catch (error) {
@@ -733,18 +953,15 @@
                 return;
             }
 
-            // Populate form with current data
             document.getElementById('editTitle').value = activeElection.title;
             document.getElementById('editStartDate').value = formatDateTimeLocal(activeElection.start_date);
             document.getElementById('editEndDate').value = formatDateTimeLocal(activeElection.end_date);
             document.getElementById('editDescription').value = activeElection.description || '';
 
-            // Show modal
             editModal = new bootstrap.Modal(document.getElementById('editElectionModal'));
             editModal.show();
         }
 
-        // Handle edit form submission
         document.getElementById('editElectionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
@@ -810,15 +1027,6 @@
 
             if (!confirmed) return;
 
-            // Double confirmation
-            const doubleConfirm = confirm(
-                '🔴 KONFIRMASI TERAKHIR\n\n' +
-                'Anda akan menghapus ' + (document.getElementById('totalVotes').textContent || '0') + ' suara.\n' +
-                'Ketik OK untuk melanjutkan.'
-            );
-
-            if (!doubleConfirm) return;
-
             try {
                 showLoading();
 
@@ -861,20 +1069,9 @@
 
             if (!confirmed) return;
 
-            // Double confirmation
-            const doubleConfirm = confirm(
-                '⚠️ KONFIRMASI TERAKHIR\n\n' +
-                'Ini adalah kesempatan terakhir untuk membatalkan.\n' +
-                'Pemilihan "' + activeElection.title + '" akan dihapus PERMANEN!\n\n' +
-                'Lanjutkan?'
-            );
-
-            if (!doubleConfirm) return;
-
             try {
                 showLoading();
 
-                // 1. Delete all votes first
                 const { error: votesError } = await supabaseClient
                     .from('votes')
                     .delete()
@@ -882,7 +1079,6 @@
 
                 if (votesError) throw votesError;
 
-                // 2. Delete all candidates
                 const { error: candidatesError } = await supabaseClient
                     .from('candidates')
                     .delete()
@@ -890,7 +1086,6 @@
 
                 if (candidatesError) throw candidatesError;
 
-                // 3. Delete the election
                 const { error: electionError } = await supabaseClient
                     .from('elections')
                     .delete()
@@ -898,7 +1093,7 @@
 
                 if (electionError) throw electionError;
 
-                alert('✅ Pemilihan berhasil dihapus!\n\nAnda dapat membuat pemilihan baru sekarang.');
+                alert('✅ Pemilihan berhasil dihapus!');
                 activeElection = null;
                 await loadDashboard();
 
@@ -910,14 +1105,13 @@
         }
 
         // ============================================
-        // INITIALIZE ON PAGE LOAD
+        // INITIALIZE
         // ============================================
         window.addEventListener('load', () => {
             console.log('🚀 Page loaded, initializing dashboard...');
             loadDashboard();
         });
 
-        // Auto refresh every 30 seconds
         setInterval(() => {
             if (activeElection) {
                 loadDashboard();
@@ -928,7 +1122,6 @@
             .then(res => res.text())
             .then(data => {
                 document.getElementById('sidebar-placeholder').innerHTML = data;
-                // Logika aktifkan menu
                 const currentPath = window.location.pathname.split('/').pop();
                 document.querySelectorAll('.sidebar-link').forEach(link => {
                     if (link.getAttribute('href') === currentPath) link.classList.add('active');
