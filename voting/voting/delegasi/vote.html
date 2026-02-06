@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Voting Dashboard Alumni - EEPROM POLINEMA</title>
+    <title>Voting Dashboard Delegasi - EEPROM POLINEMA</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap"
         rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -15,6 +15,7 @@
             --primary-blue: #1A237E;
             --secondary-blue: #3F51B5;
             --accent-orange: #FF5722;
+            --accent-gold: #f59e0b;
             --light-gray: #F8F9FA;
             --medium-gray: #E8EAF6;
             --dark-text: #212529;
@@ -94,6 +95,15 @@
         .user-badge i {
             margin-right: 0.4rem;
             font-size: 0.9rem;
+        }
+
+        .user-badge.delegasi-badge {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            color: #92400e;
+        }
+
+        .user-badge.delegasi-badge i {
+            color: var(--accent-gold);
         }
 
         /* Main Container */
@@ -243,13 +253,6 @@
             color: var(--dark-text);
             margin-bottom: 0.5rem;
             line-height: 1.3;
-        }
-
-        .candidate-position-text {
-            color: var(--secondary-blue);
-            font-weight: 600;
-            margin-bottom: 1rem;
-            font-size: 0.9rem;
         }
 
         .btn-detail {
@@ -523,8 +526,10 @@
 
             .candidate-detail-photo {
                 width: 100%;
-                height: 400px; /* Ubah dari 500px menjadi 400px untuk lebih proporsional di mobile */
-                border-radius: 12px; /* Ubah dari 50% (bulat) menjadi 12px (rounded rectangle) */
+                height: 400px;
+                /* Ubah dari 500px menjadi 400px untuk lebih proporsional di mobile */
+                border-radius: 12px;
+                /* Ubah dari 50% (bulat) menjadi 12px (rounded rectangle) */
             }
         }
 
@@ -579,10 +584,10 @@
             <div class="d-flex justify-content-between align-items-start mb-2">
                 <div class="flex-grow-1">
                     <h3 class="mb-1 fw-bold header-title">
-                        <i class="bi bi-trophy-fill me-2"></i>
-                        Voting Dashboard Alumni
+                        <i class="bi bi-box-seam-fill me-2"></i>
+                        Voting Dashboard Delegasi
                     </h3>
-                    <p class="mb-0 opacity-75 header-subtitle">Gunakan hak suara Anda untuk masa depan EEPROM</p>
+                    <p class="mb-0 opacity-75 header-subtitle">Selamat datang di sistem voting EEPROM</p>
                 </div>
                 <button class="btn btn-light btn-logout" onclick="logout()">
                     <i class="bi bi-box-arrow-right me-1"></i> Keluar
@@ -591,8 +596,8 @@
 
             <div class="user-info-card">
                 <div class="d-flex align-items-center mb-2">
-                    <i class="bi bi-person-circle fs-5 me-2"></i>
-                    <h6 class="mb-0 fw-bold user-info-title">Informasi Voter</h6>
+                    <i class="bi bi-person-badge fs-5 me-2"></i>
+                    <h6 class="mb-0 fw-bold user-info-title">Informasi Delegasi</h6>
                 </div>
                 <div class="d-flex flex-wrap">
                     <span class="user-badge">
@@ -600,8 +605,12 @@
                         <span id="voterName">-</span>
                     </span>
                     <span class="user-badge">
-                        <i class="bi bi-mortarboard-fill"></i>
-                        Generasi <span id="voterGen">-</span>
+                        <i class="bi bi-card-text"></i>
+                        NIM: <span id="voterNim">-</span>
+                    </span>
+                    <span class="user-badge delegasi-badge">
+                        <i class="bi bi-building"></i>
+                        <span id="voterOrg">-</span>
                     </span>
                 </div>
             </div>
@@ -724,26 +733,71 @@
         let hasVoted = false;
         let candidatesData = [];
 
+        // Session data dari localStorage
+        let voterName = null;
+        let voterNim = null;
+        let voterOrg = null;
+        let accessCode = null;
+        let codeVerified = false;
+
         window.addEventListener('DOMContentLoaded', async function () {
-            console.log('🔄 Loading voting page...');
+            console.log('🔄 Loading voting page for delegasi...');
 
-            const alumniName = localStorage.getItem('namaLengkap');
-            const codeVerified = localStorage.getItem('codeVerified');
+            // Baca data dari localStorage
+            voterName = localStorage.getItem('namaLengkap');
+            voterNim = localStorage.getItem('nim');
+            voterOrg = localStorage.getItem('asalDelegasi');
+            currentElectionId = localStorage.getItem('electionId');
+            accessCode = localStorage.getItem('accessCode');
+            codeVerified = localStorage.getItem('codeVerified');
 
-            if (!alumniName || codeVerified !== 'true') {
-                console.error('❌ No valid session');
-                showAlert('Akses tidak valid. Silakan login kembali.', 'danger');
+            console.log('📦 Data from localStorage:', {
+                voterName,
+                voterNim,
+                voterOrg,
+                currentElectionId,
+                accessCode,
+                codeVerified
+            });
+
+            // Validasi data
+            if (!voterName || !voterNim || !voterOrg) {
+                console.error('❌ Data tidak lengkap');
+                showAlert('Data delegasi tidak ditemukan. Silakan login kembali.', 'danger');
                 setTimeout(() => {
-                    window.location.href = '../../auth/alumni/login-alumni.html';
+                    window.location.href = '../../auth/login-delegasi.html';
                 }, 2000);
                 return;
             }
 
-            // Display voter info
-            document.getElementById('voterName').textContent = alumniName;
-            document.getElementById('voterGen').textContent = localStorage.getItem('generasi') || '-';
+            if (!currentElectionId) {
+                console.error('❌ Election ID tidak ditemukan');
+                showAlert('ID pemilihan tidak ditemukan. Silakan login kembali.', 'danger');
+                setTimeout(() => {
+                    window.location.href = '../../auth/login-delegasi.html';
+                }, 2000);
+                return;
+            }
 
-            console.log('✅ Session loaded for alumni:', alumniName);
+            // Cek apakah kode sudah diverifikasi
+            if (codeVerified !== 'true') {
+                console.warn('⚠️ Code not verified yet');
+                showAlert('Kode akses belum diverifikasi. Mengalihkan...', 'warning');
+                setTimeout(() => {
+                    window.location.href = '../../auth/enter-code-delegasi.html';
+                }, 2000);
+                return;
+            }
+
+            console.log('✅ All validations passed');
+
+            // Display voter info
+            document.getElementById('voterName').textContent = voterName;
+            document.getElementById('voterNim').textContent = voterNim;
+            document.getElementById('voterOrg').textContent = voterOrg;
+
+            console.log('📌 Current election ID:', currentElectionId);
+            console.log('📌 Voter NIM:', voterNim);
 
             // Check voting status dan load candidates
             await checkVotingStatus();
@@ -753,40 +807,21 @@
         // Check voting status
         async function checkVotingStatus() {
             try {
-                console.log('🔍 Checking voting status...');
+                console.log('🔍 Checking voting status for NIM:', voterNim, 'Election:', currentElectionId);
 
-                // Get active election
-                const { data: election, error: electionError } = await supabaseClient
-                    .from('elections')
-                    .select('id')
-                    .eq('is_active', true)
-                    .single();
-
-                if (electionError || !election) {
-                    console.warn('⚠️ No active election');
-                    showAlert('Tidak ada pemilihan yang sedang aktif.', 'warning');
-                    return;
-                }
-
-                currentElectionId = election.id;
-                console.log('📌 Current election ID:', currentElectionId);
-
-                const currentIP = await getIPAddress();
-                const currentUserAgent = navigator.userAgent;
-
-                console.log('🔍 Checking for existing votes with IP:', currentIP);
-
-                // Check if alumni has voted - using IP and user agent
+                // Check if delegasi has voted - using voter_identifier (NIM) and voter_role
                 const { data: voteData, error: voteError } = await supabaseClient
                     .from('votes')
-                    .select('ip_address, user_agent')
-                    .eq('voter_role', 'alumni')
-                    .eq('election_id', currentElectionId);
+                    .select('*')
+                    .eq('election_id', currentElectionId)
+                    .eq('voter_identifier', voterNim)
+                    .eq('voter_role', 'delegasi')
+                    .maybeSingle();
 
                 console.log('📊 Vote check result:', { voteData, voteError });
 
-                // If found vote with same IP or user agent, user has voted
-                if (voteData && voteData.some(v => v.ip_address === currentIP || v.user_agent === currentUserAgent)) {
+                // If found vote with same NIM, user has voted
+                if (voteData) {
                     console.warn('⚠️ User already voted!');
                     hasVoted = true;
                     updateVotingStatusUI(true);
@@ -830,14 +865,14 @@
 
             if (voted) {
                 statusIndicator.innerHTML = `
-                    <div class="status-icon" style="background: var(--success-green);">
-                        <i class="bi bi-check-circle-fill"></i>
-                    </div>
-                    <div class="status-text">
-                        <h6 class="mb-1 fw-bold text-success">Sudah Voting</h6>
-                        <p class="mb-0 text-muted">Terima kasih atas partisipasi Anda!</p>
-                    </div>
-                `;
+            <div class="status-icon" style="background: var(--success-green);">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="status-text">
+                <h6 class="mb-1 fw-bold text-success">Sudah Voting</h6>
+                <p class="mb-0 text-muted">Terima kasih atas partisipasi Anda!</p>
+            </div>
+        `;
             }
         }
 
@@ -886,40 +921,38 @@
         function renderCandidates(candidates) {
             const grid = document.getElementById('candidatesGrid');
             grid.innerHTML = candidates.map(c => `
-                <div class="candidate-card" data-candidate-id="${c.id}">
-                    <div class="candidate-header">
-                        <div class="candidate-number">No. ${c.candidate_number}</div>
-                        <div class="candidate-position">${c.position || 'Kandidat'}</div>
-                    </div>
-                    <div class="candidate-photo ${!c.photo_url ? 'no-photo' : ''}">
-                        ${c.photo_url ? `<img src="${c.photo_url}" alt="${c.name}">` : '<i class="bi bi-person-circle"></i>'}
-                    </div>
-                    <div class="candidate-body">
-                        <h5 class="candidate-name">${c.name}</h5>
-                        <button class="btn btn-detail" onclick="showDetail('${c.id}')">
-                            <i class="bi bi-info-circle me-1"></i>
-                            Lihat Visi & Misi
-                        </button>
-                        <button class="vote-button" onclick="selectCandidate('${c.id}', '${c.name.replace(/'/g, "\\'")}', '${c.photo_url || ''}', ${c.candidate_number})" ${hasVoted ? 'disabled' : ''}>
-                            <i class="bi bi-hand-thumbs-up-fill me-2"></i>
-                            ${hasVoted ? 'Sudah Voting' : 'Pilih Kandidat'}
-                        </button>
-                    </div>
-                </div>
-            `).join('');
+        <div class="candidate-card" data-candidate-id="${c.id}">
+            <div class="candidate-header">
+                <div class="candidate-number">No. ${c.candidate_number}</div>
+                <div class="candidate-position">${c.position || 'Kandidat'}</div>
+            </div>
+            <div class="candidate-photo ${!c.photo_url ? 'no-photo' : ''}">
+                ${c.photo_url ? `<img src="${c.photo_url}" alt="${c.name}">` : '<i class="bi bi-person-circle"></i>'}
+            </div>
+            <div class="candidate-body">
+                <h5 class="candidate-name">${c.name}</h5>
+                <button class="btn btn-detail" onclick="showDetail('${c.id}')">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Lihat Visi & Misi
+                </button>
+                <button class="vote-button" onclick="selectCandidate('${c.id}', '${c.name.replace(/'/g, "\\'")}', '${c.photo_url || ''}', ${c.candidate_number})" ${hasVoted ? 'disabled' : ''}>
+                    <i class="bi bi-hand-thumbs-up-fill me-2"></i>
+                    ${hasVoted ? 'Sudah Voting' : 'Pilih Kandidat'}
+                </button>
+            </div>
+        </div>
+    `).join('');
         }
 
         // Format mission text into list
         function formatMission(missionText) {
             if (!missionText) return '';
-            
-            // Split by newline or numbered pattern
+
             const lines = missionText.split(/\n|(?=\d+\.)/);
             const items = lines
                 .map(line => line.trim())
                 .filter(line => line.length > 0);
-            
-            // If already has numbers, render as ordered list
+
             if (items.some(item => /^\d+\./.test(item))) {
                 const listItems = items.map(item => {
                     const text = item.replace(/^\d+\.\s*/, '');
@@ -927,8 +960,7 @@
                 }).join('');
                 return `<ol style="padding-left: 1.5rem; margin-bottom: 0;">${listItems}</ol>`;
             }
-            
-            // Otherwise render as paragraph with line breaks
+
             return `<p>${missionText.replace(/\n/g, '<br>')}</p>`;
         }
 
@@ -940,34 +972,34 @@
             const photoHtml = candidate.photo_url
                 ? `<img src="${candidate.photo_url}" alt="${candidate.name}" class="candidate-detail-photo">`
                 : `<div class="candidate-detail-photo no-photo">
-                    <i class="bi bi-person-circle"></i>
-                </div>`;
+            <i class="bi bi-person-circle"></i>
+        </div>`;
 
             const visionHtml = candidate.vision
                 ? `<div class="detail-section">
-                    <h6><i class="bi bi-eye-fill"></i> Visi</h6>
-                    <p>${candidate.vision}</p>
-                </div>`
+            <h6><i class="bi bi-eye-fill"></i> Visi</h6>
+            <p>${candidate.vision}</p>
+        </div>`
                 : '';
 
             const missionHtml = candidate.mission
                 ? `<div class="detail-section">
-                    <h6><i class="bi bi-list-check"></i> Misi</h6>
-                    ${formatMission(candidate.mission)}
-                </div>`
+            <h6><i class="bi bi-list-check"></i> Misi</h6>
+            ${formatMission(candidate.mission)}
+        </div>`
                 : '';
 
             const detailContent = `
-                <div class="candidate-detail-header">
-                    ${photoHtml}
-                    <h4 class="fw-bold mb-1">No. ${candidate.candidate_number}</h4>
-                    <h3 class="fw-bold text-primary mb-2">${candidate.name}</h3>
-                    <p class="text-muted mb-0">${candidate.position || 'Kandidat'}</p>
-                </div>
-                ${visionHtml}
-                ${missionHtml}
-                ${!candidate.vision && !candidate.mission ? '<p class="text-muted text-center py-3">Belum ada visi dan misi yang ditambahkan.</p>' : ''}
-            `;
+        <div class="candidate-detail-header">
+            ${photoHtml}
+            <h4 class="fw-bold mb-1">No. ${candidate.candidate_number}</h4>
+            <h3 class="fw-bold text-primary mb-2">${candidate.name}</h3>
+            <p class="text-muted mb-0">${candidate.position || 'Kandidat'}</p>
+        </div>
+        ${visionHtml}
+        ${missionHtml}
+        ${!candidate.vision && !candidate.mission ? '<p class="text-muted text-center py-3">Belum ada visi dan misi yang ditambahkan.</p>' : ''}
+    `;
 
             document.getElementById('detailModalBody').innerHTML = detailContent;
             new bootstrap.Modal(document.getElementById('detailModal')).show();
@@ -996,22 +1028,22 @@
             selectedButton.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Kandidat Dipilih';
 
             document.getElementById('selectedCandidateText').innerHTML = `
-                <i class="bi bi-check-circle-fill text-success me-2"></i>
-                <strong>No. ${num} - ${name}</strong>
-            `;
+        <i class="bi bi-check-circle-fill text-success me-2"></i>
+        <strong>No. ${num} - ${name}</strong>
+    `;
 
             document.getElementById('submitVoteBtn').disabled = false;
 
             const statusIndicator = document.getElementById('votingStatus');
             statusIndicator.innerHTML = `
-                <div class="status-icon" style="background: var(--accent-orange);">
-                    <i class="bi bi-hand-index-thumb"></i>
-                </div>
-                <div class="status-text">
-                    <h6 class="mb-1 fw-bold" style="color: var(--accent-orange);">Kandidat Dipilih</h6>
-                    <p class="mb-0 text-muted">Klik "Kirim Suara" untuk mengirim pilihan Anda</p>
-                </div>
-            `;
+        <div class="status-icon" style="background: var(--accent-orange);">
+            <i class="bi bi-hand-index-thumb"></i>
+        </div>
+        <div class="status-text">
+            <h6 class="mb-1 fw-bold" style="color: var(--accent-orange);">Kandidat Dipilih</h6>
+            <p class="mb-0 text-muted">Klik "Kirim Suara" untuk mengirim pilihan Anda</p>
+        </div>
+    `;
         }
 
         // Confirm submit vote
@@ -1025,14 +1057,14 @@
             const photoHtml = selectedCandidateData.photo
                 ? `<img src="${selectedCandidateData.photo}" alt="${selectedCandidateData.name}" class="preview-photo">`
                 : `<div class="preview-photo" style="background: #e2e8f0; display: flex; align-items: center; justify-content: center; color: #94a3b8;">
-                    <i class="bi bi-person-circle" style="font-size: 3rem;"></i>
-                </div>`;
+            <i class="bi bi-person-circle" style="font-size: 3rem;"></i>
+        </div>`;
 
             preview.innerHTML = `
-                ${photoHtml}
-                <h5 class="text-center fw-bold mb-2">No. ${selectedCandidateData.num}</h5>
-                <h4 class="text-center fw-bold text-primary">${selectedCandidateData.name}</h4>
-            `;
+        ${photoHtml}
+        <h5 class="text-center fw-bold mb-2">No. ${selectedCandidateData.num}</h5>
+        <h4 class="text-center fw-bold text-primary">${selectedCandidateData.name}</h4>
+    `;
 
             new bootstrap.Modal(document.getElementById('confirmModal')).show();
         }
@@ -1058,7 +1090,8 @@
                 console.log('📤 Submitting vote:', {
                     election_id: currentElectionId,
                     candidate_id: selectedCandidateId,
-                    voter_role: 'alumni'
+                    voter_role: 'delegasi',
+                    voter_identifier: voterNim
                 });
 
                 // Insert vote
@@ -1067,7 +1100,8 @@
                     .insert([{
                         election_id: currentElectionId,
                         candidate_id: selectedCandidateId,
-                        voter_role: 'alumni',
+                        voter_role: 'delegasi',
+                        voter_identifier: voterNim,
                         voted_at: new Date().toISOString(),
                         ip_address: ipAddress,
                         user_agent: userAgent
@@ -1101,7 +1135,7 @@
 
                 // Redirect to success page
                 setTimeout(() => {
-                    window.location.href = 'vote-success.html';
+                    window.location.href = 'vote-success-delegasi.html';
                 }, 1000);
 
             } catch (error) {
@@ -1121,12 +1155,12 @@
         function showEmptyState() {
             const grid = document.getElementById('candidatesGrid');
             grid.innerHTML = `
-                <div class="empty-state" style="grid-column: 1/-1;">
-                    <i class="bi bi-inbox"></i>
-                    <h5 class="fw-bold">Belum Ada Kandidat</h5>
-                    <p class="text-muted">Kandidat belum tersedia untuk pemilihan ini</p>
-                </div>
-            `;
+        <div class="empty-state" style="grid-column: 1/-1;">
+            <i class="bi bi-inbox"></i>
+            <h5 class="fw-bold">Belum Ada Kandidat</h5>
+            <p class="text-muted">Kandidat belum tersedia untuk pemilihan ini</p>
+        </div>
+    `;
         }
 
         // Show alert
@@ -1142,9 +1176,9 @@
             alertBox.className = `alert alert-${type} alert-custom`;
             alertBox.style.display = 'block';
             alertBox.innerHTML = `
-                <i class="bi bi-${iconMap[type]}-fill me-2"></i>
-                ${message}
-            `;
+        <i class="bi bi-${iconMap[type]}-fill me-2"></i>
+        ${message}
+    `;
 
             setTimeout(() => {
                 alertBox.style.display = 'none';
@@ -1155,14 +1189,14 @@
         function logout() {
             if (confirm('Keluar dari dashboard voting?')) {
                 localStorage.clear();
-                window.location.href = '../../auth/alumni/login-alumni.html';
+                window.location.href = '../../auth/login-delegasi.html';
             }
         }
 
         // Prevent back navigation after voting
         window.addEventListener('pageshow', function (event) {
             if (hasVoted) {
-                window.location.href = 'vote-success.html';
+                window.location.href = 'vote-success-delegasi.html';
             }
         });
     </script>
