@@ -506,6 +506,19 @@
                 handleSidebarActive();
             })
             .catch(error => console.error('Error Sidebar:', error));
+
+        async function logoutAdmin() {
+            if (confirm('Apakah Anda yakin ingin keluar?')) {
+                try {
+                    await supabaseClient.auth.signOut();
+                } catch (e) {
+                    console.error('signOut error:', e);
+                }
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.replace('login-admin.html');
+            }
+        }
     </script>
 </body>
 

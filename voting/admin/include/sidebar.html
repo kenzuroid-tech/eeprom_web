@@ -117,16 +117,20 @@
 
     /* Responsive (Tablet & Mobile) */
     @media (max-width: 992px) {
-        :root { --sidebar-width: 85px; }
-        
-        .sidebar-brand h5, 
+        :root {
+            --sidebar-width: 85px;
+        }
+
+        .sidebar-brand h5,
         .sidebar-link span,
         .btn-logout-admin span {
             display: none;
         }
 
-        .sidebar-brand img { width: 45px; }
-        
+        .sidebar-brand img {
+            width: 45px;
+        }
+
         .sidebar-link {
             justify-content: center;
             padding: 1rem;
@@ -172,11 +176,10 @@
 </div>
 
 <script>
-    // Script otomatis menandai menu aktif berdasarkan URL
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const currentPath = window.location.pathname.split('/').pop();
         const navLinks = document.querySelectorAll('.sidebar-link');
-        
+
         navLinks.forEach(link => {
             const href = link.getAttribute('href');
             if (currentPath === href) {
@@ -185,10 +188,16 @@
         });
     });
 
-    function logoutAdmin() {
-        if(confirm('Apakah Anda yakin ingin keluar?')) {
+    async function logoutAdmin() {
+        if (confirm('Apakah Anda yakin ingin keluar?')) {
+            try {
+                await supabaseClient.auth.signOut();
+            } catch (e) {
+                console.error('signOut error:', e);
+            }
             localStorage.clear();
-            window.location.href = '../auth/admin-login.html';
+            sessionStorage.clear();
+            window.location.replace('login-admin.html');
         }
     }
 </script>

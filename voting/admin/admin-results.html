@@ -36,6 +36,7 @@
             .no-print {
                 display: none;
             }
+
             .main-content {
                 margin-left: 0;
             }
@@ -449,7 +450,7 @@
             .then(res => res.text())
             .then(data => {
                 document.getElementById('sidebar-placeholder').innerHTML = data;
-                
+
                 // Set active menu
                 const sidebarLinks = document.querySelectorAll('.sidebar .nav-link');
                 sidebarLinks.forEach(link => {
@@ -459,6 +460,19 @@
                 });
             })
             .catch(err => console.error('Error loading sidebar:', err));
+
+        async function logoutAdmin() {
+            if (confirm('Apakah Anda yakin ingin keluar?')) {
+                try {
+                    await supabaseClient.auth.signOut();
+                } catch (e) {
+                    console.error('signOut error:', e);
+                }
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.replace('login-admin.html');
+            }
+        }
 
         // Load on page load
         window.addEventListener('load', loadResults);

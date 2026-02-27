@@ -538,7 +538,7 @@
         (function autoFixLocalStorage() {
             const correctUserId = 'b6ac229e-3e7e-48c1-ba64-4d509f3c02a1';
             const currentUserId = localStorage.getItem('userId');
-            
+
             if (!currentUserId || currentUserId !== correctUserId) {
                 console.log('🔧 Auto-fixing localStorage...');
                 localStorage.setItem('userId', correctUserId);
@@ -790,7 +790,7 @@
                     console.error('❌ Supabase Error:', electionError);
                     document.getElementById('noElection').style.display = 'block';
                     document.getElementById('electionInfo').style.display = 'none';
-                    
+
                     // Load drafts anyway
                     await loadDraftElections();
                     hideLoading();
@@ -801,7 +801,7 @@
                     console.log('❌ Tidak ada pemilihan aktif');
                     document.getElementById('noElection').style.display = 'block';
                     document.getElementById('electionInfo').style.display = 'none';
-                    
+
                     // Load drafts
                     await loadDraftElections();
                     hideLoading();
@@ -830,7 +830,7 @@
                 }
 
                 await loadResults(election.id);
-                
+
                 // Load drafts even if there's active election
                 await loadDraftElections();
 
@@ -840,7 +840,7 @@
                 console.error('❌ Critical Error:', error);
                 document.getElementById('noElection').style.display = 'block';
                 document.getElementById('electionInfo').style.display = 'none';
-                
+
                 // Try to load drafts anyway
                 await loadDraftElections();
                 hideLoading();
@@ -1127,6 +1127,19 @@
                     if (link.getAttribute('href') === currentPath) link.classList.add('active');
                 });
             });
+
+        async function logoutAdmin() {
+            if (confirm('Apakah Anda yakin ingin keluar?')) {
+                try {
+                    await supabaseClient.auth.signOut();
+                } catch (e) {
+                    console.error('signOut error:', e);
+                }
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.replace('login-admin.html');
+            }
+        }
     </script>
 </body>
 
