@@ -209,7 +209,8 @@
                     <h5 class="modal-title fw-bold" id="generateModalLabel">
                         <i class="bi bi-plus-circle-fill me-2"></i>Generate Kode Akses
                     </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
@@ -224,7 +225,8 @@
                     <div id="autoGenerateInfo" style="display: none;">
                         <div class="alert alert-info">
                             <i class="bi bi-info-circle me-2"></i>
-                            Kode akan otomatis digenerate untuk semua <strong id="userTypeLabel"></strong> yang terdaftar di database.
+                            Kode akan otomatis digenerate untuk semua <strong id="userTypeLabel"></strong> yang
+                            terdaftar di database.
                         </div>
                     </div>
 
@@ -240,7 +242,8 @@
                         </div>
                         <div class="mb-3">
                             <label for="delegasiInstansi" class="form-label fw-semibold">Instansi</label>
-                            <input type="text" class="form-control" id="delegasiInstansi" placeholder="Contoh: Universitas XYZ">
+                            <input type="text" class="form-control" id="delegasiInstansi"
+                                placeholder="Contoh: Universitas XYZ">
                         </div>
                     </div>
                 </div>
@@ -388,7 +391,7 @@
                             if (v.voter_identifier && code.voter_identifier) {
                                 return v.voter_identifier === code.voter_identifier;
                             }
-                            if (v.voter_id ) {
+                            if (v.voter_id) {
                                 return v.voter_id;
                             }
                             return false;
@@ -449,9 +452,7 @@
                 if (currentElection.allow_delegasi) allowedTypes.push('Delegasi');
 
                 document.getElementById('electionDetails').innerHTML = `
-            Tipe yang diizinkan: <strong>${allowedTypes.join(', ') || 'Tidak ada'}</strong> | 
-            Status: <span class="badge bg-${currentElection.is_active ? 'success' : 'secondary'} badge-sm">
-                ${currentElection.is_active ? 'Aktif' : 'Tidak Aktif'}
+            
             </span>
         `;
             }
@@ -573,36 +574,44 @@
             displayTables();
         }
 
-        function showGenerateModal() {
+        async function showGenerateModal() {
             if (!currentElection) {
                 alert('Pilih pemilihan terlebih dahulu!');
                 return;
             }
 
+            // Auto-enable semua tipe jika masih false
+            if (!currentElection.allow_alumni || !currentElection.allow_delegasi) {
+                const { error } = await supabaseClient
+                    .from('elections')
+                    .update({
+                        allow_anggota: true,
+                        allow_alumni: true,
+                        allow_delegasi: true
+                    })
+                    .eq('id', selectedElectionId);
+
+                if (error) {
+                    alert('Gagal mengaktifkan tipe voter: ' + error.message);
+                    return;
+                }
+
+                // Update local object juga
+                currentElection.allow_anggota = true;
+                currentElection.allow_alumni = true;
+                currentElection.allow_delegasi = true;
+
+                console.log('✅ Auto-enabled all voter types');
+            }
+
             const userTypeSelect = document.getElementById('userTypeSelect');
             let options = '<option value="">-- Pilih Tipe --</option>';
 
-            if (currentElection.allow_anggota) {
-                options += '<option value="anggota">Anggota (Member Aktif)</option>';
-            }
-            if (currentElection.allow_alumni) {
-                options += '<option value="alumni">Alumni</option>';
-            }
-            if (currentElection.allow_delegasi) {
-                options += '<option value="delegasi">Delegasi</option>';
-            }
+            if (currentElection.allow_anggota) options += '<option value="anggota">Anggota (Member Aktif)</option>';
+            if (currentElection.allow_alumni) options += '<option value="alumni">Alumni</option>';
+            if (currentElection.allow_delegasi) options += '<option value="delegasi">Delegasi</option>';
 
             userTypeSelect.innerHTML = options;
-
-            const allowedTypes = [];
-            if (currentElection.allow_anggota) allowedTypes.push('Anggota');
-            if (currentElection.allow_alumni) allowedTypes.push('Alumni');
-            if (currentElection.allow_delegasi) allowedTypes.push('Delegasi');
-
-            if (allowedTypes.length === 0) {
-                alert('Pemilihan ini tidak mengizinkan tipe user manapun untuk voting!');
-                return;
-            }
 
             new bootstrap.Modal(document.getElementById('generateModal')).show();
         }
