@@ -153,4 +153,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }, 5000);
     }
+
+    const prefillName = sessionStorage.getItem('prefill_name');
+    if (prefillName) {
+        document.getElementById('username').value = prefillName;
+        sessionStorage.removeItem('prefill_name');
+    }
 });

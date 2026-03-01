@@ -114,4 +114,15 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }, 5000);
     }
+
+    const prefillName = sessionStorage.getItem('prefill_alumni_name');
+    const prefillGen = sessionStorage.getItem('prefill_alumni_generasi');
+    if (prefillName) {
+        document.getElementById('identifier').value = prefillName;
+        sessionStorage.removeItem('prefill_alumni_name');
+    }
+    if (prefillGen) {
+        document.getElementById('generasi').value = prefillGen;
+        sessionStorage.removeItem('prefill_alumni_generasi');
+    }
 });
