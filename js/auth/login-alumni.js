@@ -27,11 +27,43 @@ document.addEventListener('DOMContentLoaded', function () {
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Memverifikasi...';
 
         try {
+            // ✅ Ambil data election aktif beserta waktu
+            const { data: election, error: electionError } = await supabaseClient
+                .from('elections')
+                .select('id, title, start_date, end_date')
+                .eq('is_active', true)
+                .single();
+
+            if (electionError || !election) {
+                throw new Error('Tidak ada pemilihan yang sedang aktif saat ini.');
+            }
+
+            // ✅ Validasi waktu pemilihan
+            const now = new Date();
+            const start = new Date(election.start_date);
+            const end = new Date(election.end_date);
+
+            if (now < start) {
+                const diffMs = start - now;
+                const diffH = Math.floor(diffMs / 3600000);
+                const diffM = Math.floor((diffMs % 3600000) / 60000);
+                const sisaWaktu = diffH > 0 ? `${diffH} jam ${diffM} menit` : `${diffM} menit`;
+                throw new Error(`Pemilihan belum dimulai. Voting akan dibuka dalam ${sisaWaktu}.`);
+            }
+
+            if (now > end) {
+                throw new Error('Pemilihan sudah berakhir. Terima kasih atas partisipasi Anda.');
+            }
+
+            // Normalisasi nama: hapus spasi berlebih antar kata
+            const normalizedNama = namaLengkap.replace(/\s+/g, ' ').trim();
+
             // Query ke Supabase - cari alumni berdasarkan nama dan generasi
+            // .ilike() = case-insensitive: "budi", "BUDI", "Budi" semua cocok
             const { data: alumniData, error: alumniError } = await supabaseClient
                 .from('alumni')
                 .select('*, users(*)')
-                .ilike('nama_lengkap', namaLengkap) // Case insensitive search
+                .ilike('nama_lengkap', normalizedNama)
                 .eq('generasi', parseInt(generasi))
                 .single();
 
@@ -59,6 +91,8 @@ document.addEventListener('DOMContentLoaded', function () {
             localStorage.setItem('namaLengkap', alumniData.nama_lengkap);
             localStorage.setItem('generasi', alumniData.generasi);
             localStorage.setItem('alumniId', alumniData.id);
+            localStorage.setItem('electionId', election.id);
+            localStorage.setItem('electionTitle', election.title);
 
             // Simpan data tambahan
             localStorage.setItem('divisi', alumniData.divisi || '-');

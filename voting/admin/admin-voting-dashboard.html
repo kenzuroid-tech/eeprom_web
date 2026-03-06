@@ -28,7 +28,6 @@
             color: var(--soft-text);
         }
 
-        /* Sidebar */
         .sidebar {
             width: var(--sidebar-width);
             height: 100vh;
@@ -87,7 +86,6 @@
             color: #ff8a65 !important;
         }
 
-        /* Main Content */
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 40px;
@@ -111,7 +109,6 @@
             font-weight: 700;
         }
 
-        /* Cards & Banner */
         .active-voting-banner {
             background: white;
             border-radius: 20px;
@@ -151,7 +148,6 @@
             color: #2E7D32 !important;
         }
 
-        /* Progress Bar */
         .progress {
             background-color: #E0E0E0;
             border-radius: 10px;
@@ -183,7 +179,6 @@
             transform: translateY(-2px);
         }
 
-        /* Action Buttons */
         .btn-action-group {
             display: flex;
             gap: 10px;
@@ -229,7 +224,6 @@
             transform: translateY(-2px);
         }
 
-        /* Draft Election Item */
         .draft-item {
             background: white;
             border: 2px solid #e8eaf6;
@@ -278,7 +272,6 @@
             background-color: #388E3C;
         }
 
-        /* Loading Spinner */
         .spinner-overlay {
             position: fixed;
             top: 0;
@@ -292,7 +285,6 @@
             z-index: 9999;
         }
 
-        /* Modal Styling */
         .modal-content {
             border-radius: 20px;
             border: none;
@@ -307,6 +299,19 @@
 
         .modal-body {
             padding: 30px;
+        }
+
+        /* Status badge styles */
+        .badge-belum {
+            background-color: #607D8B;
+        }
+
+        .badge-berlangsung {
+            background-color: #4CAF50;
+        }
+
+        .badge-selesai {
+            background-color: #9E9E9E;
         }
 
         @media (max-width: 992px) {
@@ -345,7 +350,6 @@
 </head>
 
 <body>
-    <!-- Loading Spinner -->
     <div class="spinner-overlay" id="loadingSpinner">
         <div class="text-center">
             <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
@@ -377,14 +381,18 @@
             <div class="row align-items-center mb-4">
                 <div class="col-lg-7">
                     <div class="d-flex align-items-center gap-3 mb-2">
-                        <span class="badge rounded-pill px-3 py-2" style="background-color: var(--accent-orange);">
-                            <i class="bi bi-broadcast me-1"></i>Voting Aktif
+                        <!-- Badge status dinamis berdasarkan waktu -->
+                        <span class="badge rounded-pill px-3 py-2" id="statusBadge">
+                            <i class="bi bi-broadcast me-1" id="statusIcon"></i>
+                            <span id="statusText">Loading...</span>
                         </span>
                         <h3 class="m-0 fw-bold" id="electionTitle" style="color: var(--primary-blue);">Loading...</h3>
                     </div>
                     <p class="text-muted mb-0" id="electionDates">
                         <i class="bi bi-calendar3 me-2"></i>Loading...
                     </p>
+                    <!-- Countdown / info waktu -->
+                    <p class="mb-0 mt-1 small fw-semibold" id="timeInfo" style="color: var(--accent-orange);"></p>
                 </div>
                 <div class="col-lg-5">
                     <div class="btn-action-group justify-content-lg-end mt-3 mt-lg-0">
@@ -463,9 +471,7 @@
                     </h5>
                     <span class="badge bg-secondary rounded-pill px-3 py-2" id="draftCount">0 Draft</span>
                 </div>
-                <div id="draftElectionsContainer">
-                    <!-- Draft items will be inserted here -->
-                </div>
+                <div id="draftElectionsContainer"></div>
             </div>
         </div>
     </div>
@@ -502,9 +508,7 @@
                             <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-check-circle me-2"></i>Simpan Perubahan
                             </button>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                Batal
-                            </button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
                         </div>
                     </form>
                 </div>
@@ -516,14 +520,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // ============================================
-        // KONFIGURASI SUPABASE
-        // ============================================
         const SUPABASE_URL = 'https://ypkfhbzpowqcptthdtip.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwa2ZoYnpwb3dxY3B0dGhkdGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTA3OTMsImV4cCI6MjA4NTM2Njc5M30.MYT20iLhk4K3uuoLbunex6ZKTae9AYMRrYKNAbYs4_U';
 
         let supabaseClient;
-
         try {
             supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
             console.log('✅ Supabase Client berhasil diinisialisasi');
@@ -532,55 +532,89 @@
             alert('Gagal terhubung ke database');
         }
 
-        // ============================================
-        // AUTO-FIX localStorage
-        // ============================================
         (function autoFixLocalStorage() {
             const correctUserId = 'b6ac229e-3e7e-48c1-ba64-4d509f3c02a1';
             const currentUserId = localStorage.getItem('userId');
-
             if (!currentUserId || currentUserId !== correctUserId) {
-                console.log('🔧 Auto-fixing localStorage...');
                 localStorage.setItem('userId', correctUserId);
                 localStorage.setItem('userRole', 'admin');
                 localStorage.setItem('userName', 'admin');
-                console.log('✅ localStorage updated');
             }
         })();
 
-        // ============================================
-        // ADMIN GUARD
-        // ============================================
         (function checkAdminAccess() {
             const userId = localStorage.getItem('userId');
             const userRole = localStorage.getItem('userRole');
-
             if (!userId || userRole !== 'admin') {
                 alert('⛔ Akses ditolak! Hanya Admin yang diperbolehkan.');
                 window.location.href = '../auth/admin-login.html';
-                return;
             }
-
-            console.log('✅ Admin access granted');
         })();
 
-        // ============================================
-        // GLOBAL VARIABLES
-        // ============================================
         let activeElection = null;
         let totalMembers = 100;
         let editModal;
 
         // ============================================
-        // HELPER FUNCTIONS
+        // FUNGSI UTAMA: CEK STATUS WAKTU PEMILIHAN
         // ============================================
-        function hideLoading() {
-            document.getElementById('loadingSpinner').style.display = 'none';
+        function getElectionStatus(election) {
+            const now = new Date();
+            const start = new Date(election.start_date);
+            const end = new Date(election.end_date);
+
+            if (now < start) {
+                return 'belum_mulai';
+            } else if (now >= start && now <= end) {
+                return 'berlangsung';
+            } else {
+                return 'selesai';
+            }
         }
 
-        function showLoading() {
-            document.getElementById('loadingSpinner').style.display = 'flex';
+        function updateStatusBadge(election) {
+            const status = getElectionStatus(election);
+            const badge = document.getElementById('statusBadge');
+            const icon = document.getElementById('statusIcon');
+            const text = document.getElementById('statusText');
+            const timeInfo = document.getElementById('timeInfo');
+
+            const now = new Date();
+            const start = new Date(election.start_date);
+            const end = new Date(election.end_date);
+
+            if (status === 'belum_mulai') {
+                badge.className = 'badge rounded-pill px-3 py-2 badge-belum';
+                icon.className = 'bi bi-clock me-1';
+                text.textContent = 'Belum Dimulai';
+
+                // Hitung sisa waktu menuju mulai
+                const diffMs = start - now;
+                const diffH = Math.floor(diffMs / 3600000);
+                const diffM = Math.floor((diffMs % 3600000) / 60000);
+                timeInfo.innerHTML = `<i class="bi bi-hourglass-split me-1"></i>Dimulai dalam ${diffH > 0 ? diffH + ' jam ' : ''}${diffM} menit`;
+
+            } else if (status === 'berlangsung') {
+                badge.className = 'badge rounded-pill px-3 py-2 badge-berlangsung';
+                icon.className = 'bi bi-broadcast me-1';
+                text.textContent = 'Voting Berlangsung';
+
+                // Hitung sisa waktu berakhir
+                const diffMs = end - now;
+                const diffH = Math.floor(diffMs / 3600000);
+                const diffM = Math.floor((diffMs % 3600000) / 60000);
+                timeInfo.innerHTML = `<i class="bi bi-alarm me-1"></i>Berakhir dalam ${diffH > 0 ? diffH + ' jam ' : ''}${diffM} menit`;
+
+            } else {
+                badge.className = 'badge rounded-pill px-3 py-2 badge-selesai';
+                icon.className = 'bi bi-check-circle me-1';
+                text.textContent = 'Voting Selesai';
+                timeInfo.innerHTML = `<i class="bi bi-check2-all me-1"></i>Pemilihan telah berakhir`;
+            }
         }
+
+        function hideLoading() { document.getElementById('loadingSpinner').style.display = 'none'; }
+        function showLoading() { document.getElementById('loadingSpinner').style.display = 'flex'; }
 
         function formatDate(dateString) {
             const options = { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -597,21 +631,8 @@
             return `${year}-${month}-${day}T${hours}:${minutes}`;
         }
 
-        async function adminLogout() {
-            if (confirm("Apakah Anda yakin ingin logout?")) {
-                localStorage.clear();
-                sessionStorage.clear();
-                window.location.href = '../auth/admin-login.html';
-            }
-        }
-
-        // ============================================
-        // LOAD DRAFT ELECTIONS
-        // ============================================
         async function loadDraftElections() {
             try {
-                console.log('📋 Loading draft elections...');
-
                 const { data: drafts, error } = await supabaseClient
                     .from('elections')
                     .select('*')
@@ -620,18 +641,14 @@
 
                 if (error) throw error;
 
-                console.log('📋 Drafts found:', drafts);
-
                 if (!drafts || drafts.length === 0) {
                     document.getElementById('draftElectionsList').style.display = 'none';
                     return;
                 }
 
-                // Show draft section
                 document.getElementById('draftElectionsList').style.display = 'block';
                 document.getElementById('draftCount').textContent = `${drafts.length} Draft`;
 
-                // Build draft items HTML
                 const container = document.getElementById('draftElectionsContainer');
                 container.innerHTML = drafts.map(draft => `
                     <div class="draft-item">
@@ -674,108 +691,53 @@
             }
         }
 
-        // ============================================
-        // ACTIVATE DRAFT
-        // ============================================
         async function activateDraft(draftId) {
-            if (!confirm('Aktifkan pemilihan ini? Pemilihan yang sedang aktif akan dinonaktifkan.')) {
-                return;
-            }
-
+            if (!confirm('Aktifkan pemilihan ini? Pemilihan yang sedang aktif akan dinonaktifkan.')) return;
             try {
                 showLoading();
-
-                // Deactivate all active elections first
-                await supabaseClient
-                    .from('elections')
-                    .update({ is_active: false })
-                    .eq('is_active', true);
-
-                // Activate this draft
-                const { error } = await supabaseClient
-                    .from('elections')
-                    .update({ is_active: true })
-                    .eq('id', draftId);
-
+                await supabaseClient.from('elections').update({ is_active: false }).eq('is_active', true);
+                const { error } = await supabaseClient.from('elections').update({ is_active: true }).eq('id', draftId);
                 if (error) throw error;
-
                 alert('✅ Pemilihan berhasil diaktifkan!');
                 await loadDashboard();
-
             } catch (error) {
-                console.error('❌ Error activating draft:', error);
                 alert('❌ Gagal mengaktifkan: ' + error.message);
                 hideLoading();
             }
         }
 
-        // ============================================
-        // EDIT DRAFT
-        // ============================================
         async function editDraft(draftId) {
             try {
-                const { data, error } = await supabaseClient
-                    .from('elections')
-                    .select('*')
-                    .eq('id', draftId)
-                    .single();
-
+                const { data, error } = await supabaseClient.from('elections').select('*').eq('id', draftId).single();
                 if (error) throw error;
-
-                // Set as active election temporarily for editing
                 activeElection = data;
                 editElection();
-
             } catch (error) {
-                console.error('❌ Error loading draft:', error);
                 alert('❌ Gagal memuat draft: ' + error.message);
             }
         }
 
-        // ============================================
-        // DELETE DRAFT
-        // ============================================
         async function deleteDraft(draftId) {
-            if (!confirm('Hapus draft ini secara permanen?')) {
-                return;
-            }
-
+            if (!confirm('Hapus draft ini secara permanen?')) return;
             try {
                 showLoading();
-
-                const { error } = await supabaseClient
-                    .from('elections')
-                    .delete()
-                    .eq('id', draftId);
-
+                const { error } = await supabaseClient.from('elections').delete().eq('id', draftId);
                 if (error) throw error;
-
                 alert('✅ Draft berhasil dihapus!');
                 await loadDashboard();
-
             } catch (error) {
-                console.error('❌ Error deleting draft:', error);
                 alert('❌ Gagal menghapus draft: ' + error.message);
                 hideLoading();
             }
         }
 
-        // ============================================
-        // MAIN LOAD DASHBOARD FUNCTION
-        // ============================================
         async function loadDashboard() {
-            console.log('🔄 Loading dashboard...');
-
             const adminName = localStorage.getItem('adminName') || 'Administrator';
-            const adminInfoElement = document.getElementById('adminInfo');
-            if (adminInfoElement) {
-                adminInfoElement.textContent = adminName;
-            }
+            const adminInfoEl = document.getElementById('adminInfo');
+            if (adminInfoEl) adminInfoEl.textContent = adminName;
 
             try {
                 showLoading();
-
-                console.log('📡 Fetching active elections...');
 
                 const { data: elections, error: electionError } = await supabaseClient
                     .from('elections')
@@ -784,25 +746,9 @@
                     .order('created_at', { ascending: false })
                     .limit(1);
 
-                console.log('📊 Response:', { elections, electionError });
-
-                if (electionError) {
-                    console.error('❌ Supabase Error:', electionError);
+                if (electionError || !elections || elections.length === 0) {
                     document.getElementById('noElection').style.display = 'block';
                     document.getElementById('electionInfo').style.display = 'none';
-
-                    // Load drafts anyway
-                    await loadDraftElections();
-                    hideLoading();
-                    return;
-                }
-
-                if (!elections || !Array.isArray(elections) || elections.length === 0) {
-                    console.log('❌ Tidak ada pemilihan aktif');
-                    document.getElementById('noElection').style.display = 'block';
-                    document.getElementById('electionInfo').style.display = 'none';
-
-                    // Load drafts
                     await loadDraftElections();
                     hideLoading();
                     return;
@@ -810,50 +756,34 @@
 
                 const election = elections[0];
                 activeElection = election;
-                console.log('✅ Pemilihan aktif ditemukan:', election);
 
                 document.getElementById('noElection').style.display = 'none';
                 document.getElementById('electionInfo').style.display = 'block';
 
-                const electionTitleEl = document.getElementById('electionTitle');
-                const electionDatesEl = document.getElementById('electionDates');
+                document.getElementById('electionTitle').textContent = election.title || 'Pemilihan';
+                document.getElementById('electionDates').innerHTML = `
+                    <i class="bi bi-calendar-event me-1"></i>
+                    ${formatDate(election.start_date)} - ${formatDate(election.end_date)}
+                `;
 
-                if (electionTitleEl) {
-                    electionTitleEl.textContent = election.title || 'Pemilihan';
-                }
-
-                if (electionDatesEl) {
-                    electionDatesEl.innerHTML = `
-                        <i class="bi bi-calendar-event me-1"></i>
-                        ${formatDate(election.start_date)} - ${formatDate(election.end_date)}
-                    `;
-                }
+                // ← UPDATE STATUS BADGE BERDASARKAN WAKTU
+                updateStatusBadge(election);
 
                 await loadResults(election.id);
-
-                // Load drafts even if there's active election
                 await loadDraftElections();
-
                 hideLoading();
 
             } catch (error) {
                 console.error('❌ Critical Error:', error);
                 document.getElementById('noElection').style.display = 'block';
                 document.getElementById('electionInfo').style.display = 'none';
-
-                // Try to load drafts anyway
                 await loadDraftElections();
                 hideLoading();
             }
         }
 
-        // ============================================
-        // LOAD RESULTS FUNCTION
-        // ============================================
         async function loadResults(electionId) {
             try {
-                console.log('📊 Loading results for election:', electionId);
-
                 const { count: totalVotes, error: votesError } = await supabaseClient
                     .from('votes')
                     .select('*', { count: 'exact', head: true })
@@ -876,11 +806,7 @@
                             .select('*', { count: 'exact', head: true })
                             .eq('election_id', electionId)
                             .eq('candidate_id', candidate.id);
-
-                        return {
-                            ...candidate,
-                            voteCount: count || 0
-                        };
+                        return { ...candidate, voteCount: count || 0 };
                     })
                 );
 
@@ -900,24 +826,18 @@
                     <p class="text-danger text-center py-4">
                         <i class="bi bi-exclamation-triangle me-2"></i>
                         Gagal memuat hasil: ${error.message}
-                    </p>
-                `;
+                    </p>`;
             }
         }
 
-        // ============================================
-        // DISPLAY RESULTS CHART
-        // ============================================
         function displayResults(candidates, totalVotes) {
             const colors = ['bg-primary', 'bg-info', 'bg-warning', 'bg-success', 'bg-danger'];
 
             if (candidates.length === 0) {
                 document.getElementById('resultsChart').innerHTML = `
                     <p class="text-muted text-center py-4">
-                        <i class="bi bi-inbox me-2"></i>
-                        Belum ada kandidat terdaftar
-                    </p>
-                `;
+                        <i class="bi bi-inbox me-2"></i>Belum ada kandidat terdaftar
+                    </p>`;
                 return;
             }
 
@@ -926,7 +846,6 @@
                     ? ((candidate.voteCount / totalVotes) * 100).toFixed(1)
                     : 0;
                 const colorClass = colors[index % colors.length];
-
                 return `
                     <div class="mb-3">
                         <div class="d-flex justify-content-between mb-1 small fw-bold">
@@ -934,37 +853,27 @@
                             <span>${percent}% (${candidate.voteCount} Suara)</span>
                         </div>
                         <div class="progress" style="height: 15px;">
-                            <div class="progress-bar ${colorClass} progress-bar-striped progress-bar-animated" 
+                            <div class="progress-bar ${colorClass} progress-bar-striped progress-bar-animated"
                                  style="width: ${percent}%"></div>
                         </div>
-                    </div>
-                `;
+                    </div>`;
             }).join('');
 
             document.getElementById('resultsChart').innerHTML = chartHtml;
         }
 
-        // ============================================
-        // EDIT ELECTION FUNCTION
-        // ============================================
         function editElection() {
-            if (!activeElection) {
-                alert('Tidak ada pemilihan aktif');
-                return;
-            }
-
+            if (!activeElection) { alert('Tidak ada pemilihan aktif'); return; }
             document.getElementById('editTitle').value = activeElection.title;
             document.getElementById('editStartDate').value = formatDateTimeLocal(activeElection.start_date);
             document.getElementById('editEndDate').value = formatDateTimeLocal(activeElection.end_date);
             document.getElementById('editDescription').value = activeElection.description || '';
-
             editModal = new bootstrap.Modal(document.getElementById('editElectionModal'));
             editModal.show();
         }
 
         document.getElementById('editElectionForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-
             if (!activeElection) return;
 
             const title = document.getElementById('editTitle').value.trim();
@@ -972,151 +881,126 @@
             const endDate = document.getElementById('editEndDate').value;
             const description = document.getElementById('editDescription').value.trim();
 
-            if (!title || !startDate || !endDate) {
-                alert('Harap lengkapi semua field yang wajib diisi!');
-                return;
-            }
-
-            if (new Date(endDate) <= new Date(startDate)) {
-                alert('Tanggal selesai harus setelah tanggal mulai!');
-                return;
-            }
+            if (!title || !startDate || !endDate) { alert('Harap lengkapi semua field!'); return; }
+            if (new Date(endDate) <= new Date(startDate)) { alert('Tanggal selesai harus setelah tanggal mulai!'); return; }
 
             try {
                 showLoading();
-
-                const { error } = await supabaseClient
-                    .from('elections')
-                    .update({
-                        title: title,
-                        start_date: startDate,
-                        end_date: endDate,
-                        description: description,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', activeElection.id);
-
+                const { error } = await supabaseClient.from('elections').update({
+                    title, start_date: startDate, end_date: endDate, description,
+                    updated_at: new Date().toISOString()
+                }).eq('id', activeElection.id);
                 if (error) throw error;
-
                 alert('✅ Pemilihan berhasil diperbarui!');
                 editModal.hide();
                 await loadDashboard();
-
             } catch (error) {
-                console.error('❌ Error updating election:', error);
-                alert('❌ Gagal memperbarui pemilihan: ' + error.message);
+                alert('❌ Gagal memperbarui: ' + error.message);
                 hideLoading();
             }
         });
 
-        // ============================================
-        // RESET VOTES FUNCTION
-        // ============================================
         async function resetVotes() {
-            if (!activeElection) {
-                alert('Tidak ada pemilihan aktif');
-                return;
-            }
-
-            const confirmed = confirm(
-                '⚠️ PERINGATAN!\n\n' +
-                'Semua suara yang telah masuk akan dihapus secara permanen.\n' +
-                'Tindakan ini TIDAK DAPAT dibatalkan!\n\n' +
-                'Apakah Anda yakin ingin melanjutkan?'
-            );
-
-            if (!confirmed) return;
+            if (!activeElection) { alert('Tidak ada pemilihan aktif'); return; }
+            if (!confirm('⚠️ PERINGATAN!\n\nSemua suara akan dihapus permanen.\nApakah Anda yakin?')) return;
 
             try {
                 showLoading();
 
-                const { error } = await supabaseClient
+                // Cek dulu berapa vote yang ada
+                const { count: beforeCount, error: countError } = await supabaseClient
                     .from('votes')
-                    .delete()
+                    .select('*', { count: 'exact', head: true })
                     .eq('election_id', activeElection.id);
 
-                if (error) throw error;
+                console.log('🗳️ Vote sebelum reset:', beforeCount);
 
-                alert('✅ Semua suara berhasil direset!');
+                if (countError) {
+                    console.error('❌ Error saat count:', countError);
+                    throw countError;
+                }
+
+                if (beforeCount === 0) {
+                    alert('ℹ️ Tidak ada suara yang perlu direset.');
+                    hideLoading();
+                    return;
+                }
+
+                // Hapus semua vote
+                const { data, error, count } = await supabaseClient
+                    .from('votes')
+                    .delete()
+                    .eq('election_id', activeElection.id)
+                    .select(); // tambahkan .select() agar Supabase return data yang dihapus
+
+                console.log('🗑️ Delete result:', { data, error, count });
+
+                if (error) {
+                    console.error('❌ Error saat delete:', error);
+                    throw error;
+                }
+
+                // Cek apakah benar-benar terhapus
+                const { count: afterCount } = await supabaseClient
+                    .from('votes')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('election_id', activeElection.id);
+
+                console.log('🗳️ Vote setelah reset:', afterCount);
+
+                if (afterCount > 0) {
+                    // Masih ada vote — kemungkinan RLS memblokir
+                    throw new Error(
+                        `RLS (Row Level Security) Supabase memblokir penghapusan.\n\n` +
+                        `Solusi: Buka Supabase Dashboard → Table Editor → votes → ` +
+                        `Policies → tambahkan policy DELETE untuk role anon/authenticated.`
+                    );
+                }
+
+                // Reset juga has_voted di tabel alumni & anggota jika ada
+                await supabaseClient
+                    .from('alumni')
+                    .update({ has_voted: false })
+                    .eq('has_voted', true);
+
+                alert('✅ Semua suara berhasil direset! (' + beforeCount + ' suara dihapus)');
                 await loadDashboard();
 
             } catch (error) {
-                console.error('❌ Error resetting votes:', error);
-                alert('❌ Gagal reset suara: ' + error.message);
+                console.error('❌ Reset error:', error);
+                alert('❌ Gagal reset suara:\n\n' + error.message);
                 hideLoading();
             }
         }
 
-        // ============================================
-        // DELETE ELECTION FUNCTION
-        // ============================================
         async function deleteElection() {
-            if (!activeElection) {
-                alert('Tidak ada pemilihan aktif');
-                return;
-            }
-
-            const confirmed = confirm(
-                '🗑️ HAPUS PEMILIHAN\n\n' +
-                'Anda akan menghapus pemilihan: "' + activeElection.title + '"\n\n' +
-                'Data yang akan dihapus:\n' +
-                '• Semua suara yang masuk\n' +
-                '• Semua kandidat yang terdaftar\n' +
-                '• Data pemilihan\n\n' +
-                'Tindakan ini TIDAK DAPAT dibatalkan!\n\n' +
-                'Apakah Anda yakin?'
-            );
-
-            if (!confirmed) return;
-
+            if (!activeElection) { alert('Tidak ada pemilihan aktif'); return; }
+            if (!confirm('🗑️ Hapus pemilihan "' + activeElection.title + '" beserta semua data terkait?\n\nTindakan ini TIDAK DAPAT dibatalkan!')) return;
             try {
                 showLoading();
-
-                const { error: votesError } = await supabaseClient
-                    .from('votes')
-                    .delete()
-                    .eq('election_id', activeElection.id);
-
-                if (votesError) throw votesError;
-
-                const { error: candidatesError } = await supabaseClient
-                    .from('candidates')
-                    .delete()
-                    .eq('election_id', activeElection.id);
-
-                if (candidatesError) throw candidatesError;
-
-                const { error: electionError } = await supabaseClient
-                    .from('elections')
-                    .delete()
-                    .eq('id', activeElection.id);
-
-                if (electionError) throw electionError;
-
+                await supabaseClient.from('votes').delete().eq('election_id', activeElection.id);
+                await supabaseClient.from('candidates').delete().eq('election_id', activeElection.id);
+                const { error } = await supabaseClient.from('elections').delete().eq('id', activeElection.id);
+                if (error) throw error;
                 alert('✅ Pemilihan berhasil dihapus!');
                 activeElection = null;
                 await loadDashboard();
-
             } catch (error) {
-                console.error('❌ Error deleting election:', error);
-                alert('❌ Gagal menghapus pemilihan: ' + error.message);
+                alert('❌ Gagal menghapus: ' + error.message);
                 hideLoading();
             }
         }
 
-        // ============================================
-        // INITIALIZE
-        // ============================================
-        window.addEventListener('load', () => {
-            console.log('🚀 Page loaded, initializing dashboard...');
-            loadDashboard();
-        });
+        window.addEventListener('load', () => loadDashboard());
+
+        // Auto refresh setiap 30 detik + update badge waktu setiap 1 menit
+        setInterval(() => {
+            if (activeElection) loadDashboard();
+        }, 30000);
 
         setInterval(() => {
-            if (activeElection) {
-                loadDashboard();
-            }
-        }, 30000);
+            if (activeElection) updateStatusBadge(activeElection);
+        }, 60000);
 
         fetch('include/sidebar.html')
             .then(res => res.text())
@@ -1130,11 +1014,7 @@
 
         async function logoutAdmin() {
             if (confirm('Apakah Anda yakin ingin keluar?')) {
-                try {
-                    await supabaseClient.auth.signOut();
-                } catch (e) {
-                    console.error('signOut error:', e);
-                }
+                try { await supabaseClient.auth.signOut(); } catch (e) { }
                 localStorage.clear();
                 sessionStorage.clear();
                 window.location.replace('login-admin.html');

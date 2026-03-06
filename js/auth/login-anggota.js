@@ -44,10 +44,10 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             console.log('🔍 Checking anggota in database...');
 
-            // Get active election first
+            // Get active election first (tambahkan start_date & end_date)
             const { data: election, error: electionError } = await supabaseClient
                 .from('elections')
-                .select('id, title')
+                .select('id, title, start_date, end_date')
                 .eq('is_active', true)
                 .single();
 
@@ -58,11 +58,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
             console.log('✅ Active election found:', election);
 
+            // ✅ Validasi waktu pemilihan
+            const now = new Date();
+            const start = new Date(election.start_date);
+            const end = new Date(election.end_date);
+
+            if (now < start) {
+                const diffMs = start - now;
+                const diffH = Math.floor(diffMs / 3600000);
+                const diffM = Math.floor((diffMs % 3600000) / 60000);
+                const sisaWaktu = diffH > 0 ? `${diffH} jam ${diffM} menit` : `${diffM} menit`;
+                throw new Error(`Pemilihan belum dimulai. Voting akan dibuka dalam ${sisaWaktu}.`);
+            }
+
+            if (now > end) {
+                throw new Error('Pemilihan sudah berakhir. Terima kasih atas partisipasi Anda.');
+            }
+
+            // Normalisasi nama: hapus spasi berlebih antar kata
+            const normalizedNama = namaLengkap.replace(/\s+/g, ' ').trim();
+
             // Check if anggota exists in database
+            // .ilike() = case-insensitive: "budi", "BUDI", "Budi" semua cocok
             const { data: anggota, error: anggotaError } = await supabaseClient
                 .from('anggota')
                 .select('*')
-                .eq('nama_lengkap', namaLengkap)
+                .ilike('nama_lengkap', normalizedNama)
                 .eq('nim', nim)
                 .maybeSingle();
 

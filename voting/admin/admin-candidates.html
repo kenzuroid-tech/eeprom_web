@@ -28,7 +28,6 @@
             display: flex;
         }
 
-        /* Main Content Layout */
         .main-content {
             margin-left: var(--sidebar-width);
             width: calc(100% - var(--sidebar-width));
@@ -45,7 +44,6 @@
             align-items: center;
         }
 
-        /* Candidate Cards */
         .card {
             border: none;
             border-radius: 16px;
@@ -182,7 +180,7 @@
                 <div class="card-body p-4 d-flex align-items-center">
                     <div class="me-4 bg-light-primary p-3 rounded-4 text-primary"
                         style="background: rgba(26,35,126,0.08)">
-                        <i class="bi bi- megaphone-fill fs-3"></i>
+                        <i class="bi bi-megaphone-fill fs-3"></i>
                     </div>
                     <div>
                         <h5 class="fw-bold mb-1" id="electionTitle">Memuat Pemilihan...</h5>
@@ -201,6 +199,7 @@
         </div>
     </div>
 
+    <!-- Modal Tambah -->
     <div class="modal fade" id="addCandidateModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -238,10 +237,6 @@
                                 <label class="form-label fw-bold small text-muted">MISI</label>
                                 <textarea class="form-control" name="mission" rows="4"></textarea>
                             </div>
-                            <!-- <div class="col-12">
-                                <label class="form-label fw-bold small text-muted">BIOGRAFI SINGKAT</label>
-                                <textarea class="form-control" name="biography" rows="2"></textarea>
-                            </div> -->
                         </div>
                     </div>
                     <div class="modal-footer border-0">
@@ -254,6 +249,7 @@
         </div>
     </div>
 
+    <!-- Modal Edit -->
     <div class="modal fade" id="editCandidateModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
@@ -310,7 +306,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
-        // Logika JS Anda Tetap Sama
         const SUPABASE_URL = 'https://ypkfhbzpowqcptthdtip.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inlwa2ZoYnpwb3dxY3B0dGhkdGlwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3OTA3OTMsImV4cCI6MjA4NTM2Njc5M30.MYT20iLhk4K3uuoLbunex6ZKTae9AYMRrYKNAbYs4_U';
 
@@ -355,7 +350,8 @@
 
                 activeElection = election;
                 document.getElementById('electionTitle').textContent = election.title;
-                document.getElementById('electionDates').innerHTML = `<i class="bi bi-calendar-event me-2"></i> ${formatDate(election.start_date)} — ${formatDate(election.end_date)}`;
+                document.getElementById('electionDates').innerHTML =
+                    `<i class="bi bi-calendar-event me-2"></i> ${formatDate(election.start_date)} — ${formatDate(election.end_date)}`;
 
                 await loadCandidates();
             } catch (error) {
@@ -365,15 +361,16 @@
 
         async function loadCandidates() {
             try {
-                const { data: candidates, error } = await supabaseClient
+                // Ambil data kandidat
+                const { data: candidates, error: candidatesError } = await supabaseClient
                     .from('candidates')
                     .select('*')
                     .eq('election_id', activeElection.id)
                     .order('candidate_number');
 
-                if (error) throw error;
+                if (candidatesError) throw candidatesError;
 
-                if (candidates.length === 0) {
+                if (!candidates || candidates.length === 0) {
                     document.getElementById('candidatesList').innerHTML = `
                         <div class="col-12 text-center py-5">
                             <h5 class="fw-bold">Belum ada kandidat.</h5>
@@ -381,8 +378,25 @@
                     return;
                 }
 
+                // Hitung suara real-time dari tabel votes per kandidat
+                const { data: votes, error: votesError } = await supabaseClient
+                    .from('votes')
+                    .select('candidate_id')
+                    .eq('election_id', activeElection.id);
+
+                if (votesError) throw votesError;
+
+                // Buat map: candidate_id -> jumlah suara
+                const voteMap = {};
+                (votes || []).forEach(v => {
+                    voteMap[v.candidate_id] = (voteMap[v.candidate_id] || 0) + 1;
+                });
+
                 const candidatesHtml = candidates.map(c => {
                     const avatar = c.photo_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(c.name)}&background=1A237E&color=fff&size=120`;
+                    // Gunakan hitungan real dari voteMap, bukan c.total_votes
+                    const jumlahSuara = voteMap[c.id] || 0;
+
                     return `
                     <div class="col-md-6 col-xl-4 mb-4">
                         <div class="card card-candidate h-100 shadow-sm border-0">
@@ -403,7 +417,7 @@
                                     <div class="row g-0 align-items-center bg-light p-2 rounded-3 mb-2">
                                         <div class="col-6 border-end text-center">
                                             <div class="info-label mb-0">Suara</div>
-                                            <div class="fw-bold text-dark">${c.total_votes || 0}</div>
+                                            <div class="fw-bold text-dark">${jumlahSuara}</div>
                                         </div>
                                         <div class="col-6 text-center">
                                             <div class="info-label mb-0">Status</div>
@@ -425,10 +439,11 @@
                 }).join('');
 
                 document.getElementById('candidatesList').innerHTML = candidatesHtml;
-            } catch (error) { console.error(error); }
+            } catch (error) {
+                console.error('Error loadCandidates:', error);
+            }
         }
 
-        // Logic Add, Edit, Delete sama seperti sebelumnya...
         document.getElementById('addCandidateForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);

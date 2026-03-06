@@ -9,9 +9,10 @@ document.addEventListener('DOMContentLoaded', function () {
     loginForm.addEventListener('submit', async function (e) {
         e.preventDefault();
 
-        const namaLengkap = document.getElementById('namaLengkap').value.trim();
+        // Normalisasi: hapus spasi berlebih, case tidak diubah (disimpan apa adanya)
+        const namaLengkap = document.getElementById('namaLengkap').value.replace(/\s+/g, ' ').trim();
         const nim = document.getElementById('nim').value.trim();
-        const asalDelegasi = document.getElementById('asalDelegasi').value.trim();
+        const asalDelegasi = document.getElementById('asalDelegasi').value.replace(/\s+/g, ' ').trim();
 
         console.log('📝 Login attempt:', { namaLengkap, nim, asalDelegasi });
 
@@ -30,10 +31,10 @@ document.addEventListener('DOMContentLoaded', function () {
         try {
             console.log('🔍 Processing delegasi login...');
 
-            // Get active election first
+            // Get active election first (tambahkan start_date & end_date)
             const { data: election, error: electionError } = await supabaseClient
                 .from('elections')
-                .select('id, title')
+                .select('id, title, start_date, end_date')
                 .eq('is_active', true)
                 .single();
 
@@ -43,6 +44,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             console.log('✅ Active election found:', election);
+
+            // ✅ Validasi waktu pemilihan
+            const now = new Date();
+            const start = new Date(election.start_date);
+            const end = new Date(election.end_date);
+
+            if (now < start) {
+                const diffMs = start - now;
+                const diffH = Math.floor(diffMs / 3600000);
+                const diffM = Math.floor((diffMs % 3600000) / 60000);
+                const sisaWaktu = diffH > 0 ? `${diffH} jam ${diffM} menit` : `${diffM} menit`;
+                throw new Error(`Pemilihan belum dimulai. Voting akan dibuka dalam ${sisaWaktu}.`);
+            }
+
+            if (now > end) {
+                throw new Error('Pemilihan sudah berakhir. Terima kasih atas partisipasi Anda.');
+            }
 
             // Check if already voted using NIM as identifier
             const { data: voteData, error: voteError } = await supabaseClient
@@ -95,11 +113,9 @@ document.addEventListener('DOMContentLoaded', function () {
     function generateDelegasiCode(asalDelegasi) {
         // Format: DELEGASI-[SINGKATAN]-[RANDOM]
         // Contoh: DELEGASI-HMTI-A7B9
-        
         const prefix = 'DELEGASI';
         const orgShort = asalDelegasi.toUpperCase().substring(0, 4).replace(/\s/g, '');
         const randomPart = generateRandomString(4);
-        
         return `${prefix}-${orgShort}-${randomPart}`;
     }
 
