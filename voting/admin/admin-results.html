@@ -195,12 +195,26 @@
             if (!dateString) return '-';
             const date = new Date(dateString);
             return date.toLocaleString('id-ID', {
+                timeZone: 'Asia/Jakarta',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
             });
+        }
+
+        function isElectionEnded() {
+            if (!activeElection?.end_date) return false;
+
+            const now = new Date();
+            const endDate = new Date(activeElection.end_date);
+
+            // Konversi keduanya ke WIB (UTC+7)
+            const nowWIB = new Date(now.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+            const endDateWIB = new Date(endDate.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' }));
+
+            return nowWIB > endDateWIB;
         }
 
         async function loadResults() {
