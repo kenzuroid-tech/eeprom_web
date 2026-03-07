@@ -753,9 +753,6 @@
         // Check voting status
         async function checkVotingStatus() {
             try {
-                console.log('🔍 Checking voting status...');
-
-                // Get active election
                 const { data: election, error: electionError } = await supabaseClient
                     .from('elections')
                     .select('id')
@@ -763,42 +760,32 @@
                     .single();
 
                 if (electionError || !election) {
-                    console.warn('⚠️ No active election');
                     showAlert('Tidak ada pemilihan yang sedang aktif.', 'warning');
                     return;
                 }
 
                 currentElectionId = election.id;
-                console.log('📌 Current election ID:', currentElectionId);
 
-                const currentIP = await getIPAddress();
-                const currentUserAgent = navigator.userAgent;
+                // ✅ Gunakan identifier unik alumni, bukan IP/user_agent
+                const alumniName = localStorage.getItem('namaLengkap');
+                const alumniGen = localStorage.getItem('generasi');
 
-                console.log('🔍 Checking for existing votes with IP:', currentIP);
-
-                // Check if alumni has voted - using IP and user agent
                 const { data: voteData, error: voteError } = await supabaseClient
                     .from('votes')
-                    .select('ip_address, user_agent')
+                    .select('id')
                     .eq('voter_role', 'alumni')
-                    .eq('election_id', currentElectionId);
+                    .eq('election_id', currentElectionId)
+                    .eq('voter_identifier', alumniName + '_' + alumniGen) // filter per-alumni
+                    .maybeSingle();
 
-                console.log('📊 Vote check result:', { voteData, voteError });
-
-                // If found vote with same IP or user agent, user has voted
-                if (voteData && voteData.some(v => v.ip_address === currentIP || v.user_agent === currentUserAgent)) {
-                    console.warn('⚠️ User already voted!');
+                if (voteData) {
                     hasVoted = true;
                     updateVotingStatusUI(true);
-                    showAlert('Anda sudah melakukan voting sebelumnya. Terima kasih atas partisipasi Anda!', 'info');
-
-                    // Disable all voting actions
+                    showAlert('Anda sudah melakukan voting sebelumnya. Terima kasih!', 'info');
                     disableVotingUI();
-                } else {
-                    console.log('✅ User has not voted yet');
                 }
+
             } catch (error) {
-                console.error('❌ Error checking voting status:', error);
                 showAlert('Gagal mengecek status voting: ' + error.message, 'danger');
             }
         }
@@ -912,7 +899,7 @@
         // Format vision text as simple paragraph (no numbering, no bullets)
         function formatVision(visionText) {
             if (!visionText) return '';
-            
+
             // Just return as paragraph with line breaks preserved
             return `<p style="margin-bottom: 0; line-height: 1.8; text-align: justify;">${visionText.replace(/\n/g, '<br>')}</p>`;
         }
@@ -920,18 +907,18 @@
         // Format mission text into numbered list (ordered list)
         function formatMission(missionText) {
             if (!missionText) return '';
-            
+
             // Split by newline
             const lines = missionText.split('\n')
                 .map(line => line.trim())
                 .filter(line => line.length > 0);
-            
+
             // Remove existing numbers if present and render as ordered list
             const listItems = lines.map(item => {
                 const text = item.replace(/^\d+\.\s*/, '');
                 return `<li>${text}</li>`;
             }).join('');
-            
+
             return `<ol style="padding-left: 1.5rem; margin-bottom: 0; line-height: 1.8;">${listItems}</ol>`;
         }
 

@@ -1728,7 +1728,7 @@ const membersData = [
 
     // Generasi 16
     {
-        nim: '24410702001',
+        nim: '244107020014',
         nama_lengkap: 'Siti Nikmatus Sholihah',
         jabatan: 'Anggota',
         divisi: 'Software, Humas',
@@ -1845,7 +1845,7 @@ const membersData = [
         foto_url: '/images/memeng.jpg'
     },
     {
-        nim: '243101010070',
+        nim: '243101030011',
         nama_lengkap: 'Muhammad Syahril Syarif',
         jabatan: 'Anggota',
         divisi: 'Software',
@@ -1890,7 +1890,7 @@ const membersData = [
         foto_url: '/images/memeng.jpg'
     },
     {
-        nim: '243101030072',
+        nim: '243101030026',
         nama_lengkap: 'Sharlene Yaffa Adalia Aristyo',
         jabatan: 'Anggota',
         divisi: 'Software',
@@ -1899,7 +1899,7 @@ const membersData = [
         foto_url: '/images/memeng.jpg'
     },
     {
-        nim: '243101030026',
+        nim: '244101060063',
         nama_lengkap: 'Talitha Salsabila',
         jabatan: 'Anggota',
         divisi: 'Mekanik',

@@ -296,17 +296,32 @@
         // ============================================
         // AUTO-FIX localStorage dengan UUID yang benar
         // ============================================
-        (function autoFixLocalStorage() {
-            const correctUserId = 'b6ac229e-3e7e-48c1-ba64-4d509f3c02a1';
-            const currentUserId = localStorage.getItem('userId');
+        (async function autoFixLocalStorage() {
+            // Ambil session Supabase Auth yang aktif
+            const { data: { session } } = await supabaseClient.auth.getSession();
 
-            // Jika userId belum ada atau salah, perbaiki otomatis
-            if (!currentUserId || currentUserId !== correctUserId) {
-                console.log('🔧 Auto-fixing localStorage...');
-                localStorage.setItem('userId', correctUserId);
+            if (session) {
+                // Cari ID di public.users berdasarkan username 'admin'
+                const { data: adminUser, error } = await supabaseClient
+                    .from('users')
+                    .select('id')
+                    .eq('username', 'admin')
+                    .eq('role', 'admin')
+                    .single();
+
+                if (adminUser) {
+                    localStorage.setItem('userId', adminUser.id);
+                    localStorage.setItem('userRole', 'admin');
+                    localStorage.setItem('userName', 'admin');
+                    console.log('✅ userId dari public.users:', adminUser.id);
+                } else {
+                    console.error('❌ Admin tidak ditemukan di public.users:', error);
+                }
+            } else {
+                // Fallback ke hardcoded UUID jika belum ada session
+                localStorage.setItem('userId', 'b6ac229e-3e7e-48c1-ba64-4d509f3c02a1');
                 localStorage.setItem('userRole', 'admin');
                 localStorage.setItem('userName', 'admin');
-                console.log('✅ localStorage updated with correct admin UUID');
             }
         })();
 
